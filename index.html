@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spry Elephant — Your product, on the main branch from day one.</title>
+  <meta name="description" content="A small senior team. Agents at every station. We ship faster, cleaner, and with no handoffs. Built on Mainline.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;600;700;800;900&family=Space+Mono:wght@400;700&display=swap">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- ================= FIXED PULSE BACKGROUND ================= -->
+  <div class="rings" id="rings" aria-hidden="true">
+    <svg class="rings-svg" viewBox="-500 -500 1000 1000" preserveAspectRatio="xMidYMid meet">
+      <!-- concentric FILLED discs: outer painted first, each smaller disc stacks
+           on top so overlap darkens toward the center (largest -> smallest) -->
+      <circle class="pulse-ring" cx="0" cy="0" r="430" fill="#F63822" fill-opacity="0.22"/>
+      <circle class="pulse-ring" cx="0" cy="0" r="370" fill="#F63822" fill-opacity="0.22"/>
+      <circle class="pulse-ring" cx="0" cy="0" r="310" fill="#F63822" fill-opacity="0.22"/>
+      <circle class="pulse-ring" cx="0" cy="0" r="250" fill="#F63822" fill-opacity="0.22"/>
+      <circle class="pulse-ring" cx="0" cy="0" r="190" fill="#F63822" fill-opacity="0.22"/>
+      <circle class="pulse-ring" cx="0" cy="0" r="130" fill="#F63822" fill-opacity="0.22"/>
+      <circle class="pulse-ring" cx="0" cy="0" r="70"  fill="#F63822" fill-opacity="0.22"/>
+    </svg>
+  </div>
+
+  <main id="top">
+
+    <!-- ================= SECTION 1 · HERO ================= -->
+    <section class="hero" id="hero">
+      <div class="container hero-content">
+        <h1 class="hero-title">Your product,<br>on the main branch<br>from day one.</h1>
+        <p class="hero-sub">
+          A small senior team. Agents at every station.
+          We ship faster, cleaner, and with no handoffs.
+        </p>
+      </div>
+      <div class="container hero-actions">
+        <div class="cta-row">
+          <a href="#contact" class="btn btn-outline">Start a project</a>
+          <a href="#why-mainline" class="btn btn-outline">See how Mainline works</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= SECTION 2 · TRUST STRIP ================= -->
+    <section class="trust" aria-label="Trusted by">
+      <div class="container">
+        <p class="trust-header">Trusted by founders and tech leaders at fast-moving teams.</p>
+        <ul class="logo-row">
+          <li class="logo">NORTHWIND</li>
+          <li class="logo">VECTRA</li>
+          <li class="logo">HELIX&nbsp;OS</li>
+          <li class="logo">PONDER</li>
+          <li class="logo">ATLAS&nbsp;7</li>
+          <li class="logo">KILN</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ================= SECTION 3 · WHAT WE DO ================= -->
+    <section class="section" id="what-we-do">
+      <div class="container">
+        <header class="section-head">
+          <p class="eyebrow">// WHAT WE DO</p>
+          <h2 class="section-title">We rebuilt the software factory.</h2>
+          <p class="section-sub">
+            We rebuilt every station — research, design, dev, QA — around agents.
+            The result is a small senior team that ships at a pace that didn't exist last year.
+          </p>
+        </header>
+
+        <div class="cols-3">
+          <article class="brick">
+            <span class="brick-no">01</span>
+            <h3 class="brick-title">Discover</h3>
+            <p>Agents synthesize hundreds of interviews, transcripts, and market signals into themes. You get a validated problem in days, not months.</p>
+          </article>
+          <article class="brick">
+            <span class="brick-no">02</span>
+            <h3 class="brick-title">Build</h3>
+            <p>Specialist coding agents implement features end-to-end. Senior engineers architect, review, and own production. You get working software in weeks, not quarters.</p>
+          </article>
+          <article class="brick">
+            <span class="brick-no">03</span>
+            <h3 class="brick-title">Verify</h3>
+            <p>Visual regression on every PR. AI-generated test suites. Agent-assisted QA. Your launch is the boring kind.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= SECTION 4 · WHY MAINLINE ================= -->
+    <section class="section section-invert" id="why-mainline">
+      <div class="container">
+        <header class="section-head">
+          <p class="eyebrow">// THE METHODOLOGY</p>
+          <h2 class="section-title">Mainline. The line every project ships to.</h2>
+          <p class="section-sub">
+            Mainline is what we call our methodology. Borrowed on purpose from trunk-based
+            development — the discipline the best engineering teams already aspire to.
+            We extended it across every station of the factory.
+          </p>
+        </header>
+
+        <div class="method-grid">
+          <p class="method-body">
+            One main branch for how Spry works. No long-lived feature branches. No handoffs
+            between disciplines. No "we'll integrate later." Every phase commits its work back
+            to the same line — and the next project starts from where the last one left off.
+            That's the compounding part.
+          </p>
+          <aside class="callouts">
+            <p class="callout">We ship to one line. The one that matters.</p>
+            <p class="callout">No side branches. No handoffs. No "we'll integrate later."</p>
+            <a href="#phases" class="link-arrow">Read about Mainline →</a>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= SECTION 5 · THE PHASES ================= -->
+    <section class="section" id="phases">
+      <div class="container">
+        <header class="section-head">
+          <p class="eyebrow">// HOW WE BUILD</p>
+          <h2 class="section-title">Nine phases. One main line.</h2>
+          <p class="section-sub">
+            From the first signal to the verified release — agent-orchestrated,
+            human-accountable, end to end. No mystery.
+          </p>
+        </header>
+
+        <ol class="phase-list" id="phase-list">
+          <li class="phase"><span class="phase-num">01</span><span class="phase-name">Signal</span><span class="phase-desc">Interviews, transcripts & market data in.</span></li>
+          <li class="phase"><span class="phase-num">02</span><span class="phase-name">Discover</span><span class="phase-desc">Themes synthesized. Problem validated.</span></li>
+          <li class="phase"><span class="phase-num">03</span><span class="phase-name">Frame</span><span class="phase-desc">Scope, constraints & success defined.</span></li>
+          <li class="phase"><span class="phase-num">04</span><span class="phase-name">Design</span><span class="phase-desc">Flows and interface, agent-accelerated.</span></li>
+          <li class="phase"><span class="phase-num">05</span><span class="phase-name">Architect</span><span class="phase-desc">Senior engineers set the foundation.</span></li>
+          <li class="phase"><span class="phase-num">06</span><span class="phase-name">Build</span><span class="phase-desc">Specialist agents implement end-to-end.</span></li>
+          <li class="phase"><span class="phase-num">07</span><span class="phase-name">Review</span><span class="phase-desc">Humans own every merge to main.</span></li>
+          <li class="phase"><span class="phase-num">08</span><span class="phase-name">Verify</span><span class="phase-desc">Visual regression + AI test suites.</span></li>
+          <li class="phase"><span class="phase-num">09</span><span class="phase-name">Release</span><span class="phase-desc">The boring kind of launch.</span></li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ================= SECTION 6 · OUTCOMES ================= -->
+    <section class="section section-invert" id="outcomes">
+      <div class="container">
+        <header class="section-head">
+          <p class="eyebrow">// OUTCOMES</p>
+          <h2 class="section-title">What changes when you ship to Mainline.</h2>
+          <p class="section-sub">Three things, every project.</p>
+        </header>
+
+        <div class="cols-3">
+          <article class="stat">
+            <span class="stat-no">01</span>
+            <h3 class="stat-title">Weeks, not quarters.</h3>
+            <p>From signal to shipped software in a fraction of the old timeline.</p>
+          </article>
+          <article class="stat">
+            <span class="stat-no">02</span>
+            <h3 class="stat-title">One senior team. End to end.</h3>
+            <p>The same people see your product from Discover to Verify. No handoffs. No telephone game.</p>
+          </article>
+          <article class="stat">
+            <span class="stat-no">03</span>
+            <h3 class="stat-title">Automated status.</h3>
+            <p>Standups, reports, and blocker tracking are automated. Your time goes to decisions.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= SECTION 7 · CLOSING CTA ================= -->
+    <section class="closing" id="contact">
+      <div class="container">
+        <p class="eyebrow">// YOUR TURN</p>
+        <h2 class="closing-title">Got an idea?<br>Let's get it on Mainline.</h2>
+        <p class="closing-sub">
+          Tell us a bit about your project. We'll come back within two business days —
+          with thoughts, questions, and a clear next step. No sales deck.
+        </p>
+        <div class="cta-row">
+          <a href="mailto:hello@spryelephant.com?subject=Start%20a%20project" class="btn btn-primary">Start a conversation</a>
+          <a href="mailto:hello@spryelephant.com" class="btn btn-ghost">hello@spryelephant.com</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <span class="brand"><span class="brand-mark">◼</span> SPRY<span class="brand-slash">/</span>ELEPHANT</span>
+      <p class="footer-line">We ship to one line. The one that matters.</p>
+      <span class="footer-meta">© 2026 · hello@spryelephant.com</span>
+    </div>
+  </footer>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

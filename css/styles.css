@@ -1,0 +1,538 @@
+/* =========================================================
+   1. CSS CUSTOM PROPERTIES
+   ========================================================= */
+:root {
+  /* Colors — brutalist: raw B/W + one acid accent */
+  --color-ink:      #0a0a0a;
+  --color-paper:    #D2CBBF;   /* warm stone */
+  --color-accent:   #ff3d00;   /* signal orange-red */
+  --color-accent-2: #d6ff00;   /* acid highlight */
+  --color-invert-bg: #0a0a0a;
+  --color-invert-fg: #f4f2ea;
+  --color-ring:     #F63822;
+
+  /* Typography */
+  --font-display: 'Geist Mono', 'Space Mono', monospace;
+  --font-mono:    'Space Mono', 'Courier New', monospace;
+
+  --text-xs:   0.75rem;
+  --text-sm:   0.875rem;
+  --text-base: 1rem;
+  --text-lg:   1.25rem;
+  --text-xl:   1.5rem;
+  --text-2xl:  2rem;
+  --text-3xl:  2.75rem;
+  --text-4xl:  3.75rem;
+  --text-5xl:  5.5rem;
+
+  /* Spacing (8pt) */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-24: 6rem;
+
+  /* Layout — hard brutalist tokens */
+  --container-max: 1240px;
+  --border: 1px solid var(--color-ink);
+  --border-thick: 1px solid var(--color-ink);
+  --shadow-hard: 5px 5px 0 var(--color-ink);
+  --shadow-hard-sm: 3px 3px 0 var(--color-ink);
+  --shadow-accent: 5px 5px 0 var(--color-accent);
+}
+
+/* =========================================================
+   2. RESET / BASE
+   ========================================================= */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+
+body {
+  font-family: var(--font-mono);
+  background: var(--color-paper);
+  color: var(--color-ink);
+  line-height: 1.55;
+  font-size: var(--text-base);
+  overflow-x: hidden;
+  /* subtle grid paper texture */
+  background-image:
+    linear-gradient(rgba(10,10,10,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(10,10,10,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* Fixed pulsing background — centered, behind all content */
+.rings {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  display: grid;
+  place-items: center;
+  perspective: 900px;
+}
+.rings-svg {
+  width: min(100vh, 100vw);
+  height: min(100vh, 100vw);
+  overflow: hidden;
+  transform-origin: center;
+  will-change: transform;
+}
+.pulse-ring, .ripple, .core-dot {
+  transform-box: fill-box;
+  transform-origin: center;
+  will-change: transform, opacity;
+}
+
+/* Content sits one level above the animation */
+main, .site-footer { position: relative; z-index: 1; }
+
+a { color: inherit; text-decoration: none; }
+ul, ol { list-style: none; }
+img { max-width: 100%; display: block; }
+
+::selection { background: var(--color-accent); color: var(--color-paper); }
+
+.container {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 var(--space-6);
+}
+
+/* =========================================================
+   3. TYPOGRAPHY
+   ========================================================= */
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: 900;
+  line-height: 0.98;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
+.eyebrow, .tag {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: var(--text-sm);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--color-ink);
+  background: var(--color-accent-2);
+  display: inline-block;
+  padding: var(--space-2) var(--space-3);
+  border: var(--border);
+  margin-bottom: var(--space-6);
+}
+
+/* =========================================================
+   4. BRAND
+   ========================================================= */
+.brand {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: var(--text-lg);
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.brand-mark { color: var(--color-accent); }
+.brand-slash { color: var(--color-accent); }
+
+/* =========================================================
+   5. BUTTONS
+   ========================================================= */
+.cta-row { display: flex; flex-wrap: wrap; gap: var(--space-4); }
+
+.btn {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: var(--text-base);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: var(--space-4) var(--space-8);
+  border: var(--border-thick);
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+  display: inline-block;
+}
+.btn:active { transform: translate(4px, 4px); box-shadow: none !important; }
+
+.btn-primary {
+  background: var(--color-accent);
+  color: var(--color-paper);
+  box-shadow: var(--shadow-hard);
+}
+.btn-primary:hover, .btn-primary:focus {
+  transform: translate(-2px, -2px);
+  box-shadow: 8px 8px 0 var(--color-ink);
+}
+
+.btn-secondary {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  box-shadow: var(--shadow-hard);
+}
+.btn-secondary:hover, .btn-secondary:focus {
+  transform: translate(-2px, -2px);
+  box-shadow: 8px 8px 0 var(--color-accent);
+  background: var(--color-accent-2);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--color-ink);
+  border: var(--border);
+  box-shadow: none;
+}
+.btn-outline:hover, .btn-outline:focus {
+  border-color: var(--color-ring);
+  color: var(--color-ring);
+}
+.btn-outline:active { transform: translate(2px, 2px); box-shadow: none; }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--color-invert-fg);
+  border-color: var(--color-invert-fg);
+}
+.btn-ghost:hover, .btn-ghost:focus {
+  background: var(--color-accent-2);
+  color: var(--color-ink);
+  border-color: var(--color-accent-2);
+}
+
+/* =========================================================
+   6. SECTION 1 · HERO
+   ========================================================= */
+.hero {
+  padding: var(--space-24) 0 0;
+  border-bottom: var(--border-thick);
+  position: relative;
+  background: transparent;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+}
+.hero-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: var(--text-4xl);
+  margin: 0 auto var(--space-8);
+  max-width: 20ch;
+}
+.hero-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.hero-sub {
+  font-size: var(--text-lg);
+  max-width: 46ch;
+  margin: 0 auto;
+  font-weight: 400;
+}
+.hero-actions {
+  width: 100%;
+  margin-bottom: var(--space-16);
+  padding-top: var(--space-4);
+  padding-bottom: var(--space-4);
+  border: var(--border);
+}
+.hero .cta-row { justify-content: flex-start; }
+
+/* marquee ticker */
+.hero-ticker {
+  margin-top: auto;
+  border-top: var(--border);
+  background: var(--color-ink);
+  color: var(--color-paper);
+  overflow: hidden;
+  white-space: nowrap;
+}
+.ticker-track {
+  display: inline-flex;
+  animation: ticker 22s linear infinite;
+}
+.ticker-track span {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: var(--text-xl);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: var(--space-4) 0;
+}
+.ticker-track span:nth-child(2n) { color: var(--color-ring); }
+@keyframes ticker {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* =========================================================
+   7. SECTION 2 · TRUST STRIP
+   ========================================================= */
+.trust {
+  padding: var(--space-12) 0;
+  border-bottom: var(--border-thick);
+  background: transparent;
+}
+.trust-header {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: var(--text-sm);
+  margin-bottom: var(--space-8);
+}
+.logo-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0;
+  border: var(--border);
+}
+.logo {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: var(--text-lg);
+  letter-spacing: -0.02em;
+  padding: var(--space-6) var(--space-4);
+  text-align: center;
+  border: var(--border);
+  margin: -0.5px;
+  filter: grayscale(1);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.logo:hover { background: var(--color-ink); color: var(--color-accent-2); }
+
+/* =========================================================
+   8. SHARED SECTION SHELL
+   ========================================================= */
+.section {
+  padding: var(--space-24) 0;
+  border-bottom: var(--border-thick);
+}
+.section-invert {
+  background: transparent;
+  color: var(--color-ink);
+}
+
+.section-head { max-width: 60ch; margin-bottom: var(--space-16); }
+.section-title {
+  font-size: var(--text-3xl);
+  margin: 0 0 var(--space-6);
+}
+.section-sub {
+  font-size: var(--text-lg);
+  font-weight: 400;
+  max-width: 54ch;
+}
+
+/* =========================================================
+   9. 3-COLUMN BRICKS (What we do / Outcomes)
+   ========================================================= */
+.cols-3 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-8);
+}
+.brick, .stat {
+  border: var(--border-thick);
+  background: rgba(210, 203, 191, 0.72);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  color: var(--color-ink);
+  padding: var(--space-8);
+  box-shadow: var(--shadow-hard-sm);
+  position: relative;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.brick:hover, .stat:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: 6px 6px 0 var(--color-accent);
+}
+.brick-no, .stat-no {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: var(--text-sm);
+  background: var(--color-ink);
+  color: var(--color-paper);
+  padding: var(--space-1) var(--space-2);
+  display: inline-block;
+  margin-bottom: var(--space-4);
+}
+.brick-title, .stat-title {
+  font-size: var(--text-2xl);
+  margin-bottom: var(--space-4);
+}
+.stat-title { font-size: var(--text-xl); }
+
+/* =========================================================
+   10. SECTION 4 · WHY MAINLINE
+   ========================================================= */
+.method-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-12);
+}
+.method-body {
+  font-size: var(--text-lg);
+  font-weight: 400;
+  border-left: var(--border-thick);
+  padding-left: var(--space-6);
+}
+.callouts { display: flex; flex-direction: column; gap: var(--space-6); }
+.callout {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: var(--text-xl);
+  text-transform: uppercase;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  background: var(--color-accent);
+  color: var(--color-paper);
+  padding: var(--space-4);
+  border: var(--border);
+  box-shadow: var(--shadow-hard-sm);
+}
+.link-arrow {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 3px solid var(--color-accent);
+  align-self: flex-start;
+  padding-bottom: 2px;
+  transition: transform 0.15s ease;
+}
+.link-arrow:hover { transform: translateX(6px); }
+
+/* =========================================================
+   11. SECTION 5 · PHASE LIST
+   ========================================================= */
+.phase-list {
+  border-top: var(--border-thick);
+}
+.phase {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-3) var(--space-4);
+  align-items: baseline;
+  padding: var(--space-6) 0;
+  border-bottom: var(--border);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease, transform 0.5s ease, background 0.15s ease;
+}
+.phase.in { opacity: 1; transform: none; }
+.phase:hover { background: var(--color-accent-2); }
+.phase-num {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: var(--text-2xl);
+  color: var(--color-accent);
+  grid-row: span 2;
+}
+.phase-name {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: var(--text-2xl);
+  text-transform: uppercase;
+}
+.phase-desc {
+  grid-column: 2;
+  font-size: var(--text-base);
+  font-weight: 400;
+}
+
+/* =========================================================
+   12. SECTION 7 · CLOSING CTA
+   ========================================================= */
+.closing {
+  padding: var(--space-24) 0;
+  background: var(--color-accent);
+  color: var(--color-paper);
+  border-bottom: var(--border-thick);
+}
+.closing .eyebrow { background: var(--color-ink); color: var(--color-accent-2); border-color: var(--color-paper); }
+.closing-title {
+  font-size: var(--text-4xl);
+  margin-bottom: var(--space-6);
+}
+.closing-sub {
+  font-size: var(--text-lg);
+  font-weight: 400;
+  max-width: 52ch;
+  margin-bottom: var(--space-12);
+}
+.closing .btn-primary {
+  background: var(--color-ink);
+  color: var(--color-paper);
+  box-shadow: 5px 5px 0 var(--color-paper);
+}
+.closing .btn-primary:hover { box-shadow: 8px 8px 0 var(--color-accent-2); }
+
+/* =========================================================
+   13. FOOTER
+   ========================================================= */
+.site-footer {
+  background: var(--color-ink);
+  color: var(--color-paper);
+  padding: var(--space-12) 0;
+}
+.footer-inner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  align-items: flex-start;
+}
+.footer-line {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: var(--text-xl);
+  text-transform: uppercase;
+  color: var(--color-accent-2);
+}
+.footer-meta { font-size: var(--text-sm); opacity: 0.7; }
+
+/* =========================================================
+   14. MEDIA QUERIES (mobile-first scale up)
+   ========================================================= */
+@media (min-width: 640px) {
+  .logo-row { grid-template-columns: repeat(3, 1fr); }
+  .hero-title { font-size: var(--text-5xl); }
+}
+
+@media (min-width: 900px) {
+  .nav { display: flex; }
+  .menu-toggle, .mobile-menu { display: none !important; }
+
+  .cols-3 { grid-template-columns: repeat(3, 1fr); }
+  .logo-row { grid-template-columns: repeat(6, 1fr); }
+
+  .method-grid { grid-template-columns: 1.4fr 1fr; gap: var(--space-16); }
+
+  .hero { padding-top: 8rem; }
+  .hero-title { font-size: 7rem; }
+  .section-title { font-size: var(--text-4xl); }
+  .closing-title { font-size: var(--text-5xl); }
+
+  .phase { grid-template-columns: 80px 260px 1fr; align-items: center; }
+  .phase-num { grid-row: auto; }
+  .phase-desc { grid-column: auto; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ticker-track { animation: none; }
+  .phase { opacity: 1; transform: none; transition: none; }
+  html { scroll-behavior: auto; }
+}
