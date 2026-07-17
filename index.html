@@ -7,63 +7,44 @@
   <meta name="description" content="A small senior team. Agents at every station. We ship faster, cleaner, and with no handoffs. Built on Mainline.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;600;700;800;900&family=Space+Mono:wght@400;700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;500;700;800&family=Space+Mono:wght@400;700&display=swap">
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
 
-  <!-- ================= FIXED PULSE BACKGROUND ================= -->
-  <div class="rings" id="rings" aria-hidden="true">
-    <svg class="rings-svg" viewBox="-500 -500 1000 1000" preserveAspectRatio="xMidYMid meet">
-      <!-- concentric FILLED discs: outer painted first, each smaller disc stacks
-           on top so overlap darkens toward the center (largest -> smallest) -->
-      <circle class="pulse-ring" cx="0" cy="0" r="430" fill="#F63822" fill-opacity="0.22"/>
-      <circle class="pulse-ring" cx="0" cy="0" r="370" fill="#F63822" fill-opacity="0.22"/>
-      <circle class="pulse-ring" cx="0" cy="0" r="310" fill="#F63822" fill-opacity="0.22"/>
-      <circle class="pulse-ring" cx="0" cy="0" r="250" fill="#F63822" fill-opacity="0.22"/>
-      <circle class="pulse-ring" cx="0" cy="0" r="190" fill="#F63822" fill-opacity="0.22"/>
-      <circle class="pulse-ring" cx="0" cy="0" r="130" fill="#F63822" fill-opacity="0.22"/>
-      <circle class="pulse-ring" cx="0" cy="0" r="70"  fill="#F63822" fill-opacity="0.22"/>
-    </svg>
-  </div>
-
   <main id="top">
 
     <!-- ================= SECTION 1 · HERO ================= -->
-    <section class="hero" id="hero">
-      <div class="container hero-content">
-        <h1 class="hero-title">Your product,<br>on the main branch<br>from day one.</h1>
-        <p class="hero-sub">
-          A small senior team. Agents at every station.
-          We ship faster, cleaner, and with no handoffs.
-        </p>
+    <section class="hero" id="hero" aria-label="Spry Elephant">
+      <span class="section-tag hero-tag">Section 01 — Spry Elephant</span>
+      <div class="hero-content">
+        <p class="hero-sub">A small senior team. Agents at every station. We ship faster, cleaner, and with no handoffs.</p>
+        <h1 class="hero-title">Your product, on the main branch from day one.</h1>
       </div>
-      <div class="container hero-actions">
-        <div class="cta-row">
-          <a href="#contact" class="btn btn-outline">Start a project</a>
-          <a href="#why-mainline" class="btn btn-outline">See how Mainline works</a>
-        </div>
+      <div class="hero-nav">
+        <a href="#contact" class="hero-btn">Start a project</a>
+        <a href="#why-mainline" class="hero-btn">See how Mainline works</a>
       </div>
     </section>
 
     <!-- ================= SECTION 2 · TRUST STRIP ================= -->
     <section class="trust" aria-label="Trusted by">
-      <div class="container">
-        <p class="trust-header">Trusted by founders and tech leaders at fast-moving teams.</p>
-        <ul class="logo-row">
-          <li class="logo">NORTHWIND</li>
-          <li class="logo">VECTRA</li>
-          <li class="logo">HELIX&nbsp;OS</li>
-          <li class="logo">PONDER</li>
-          <li class="logo">ATLAS&nbsp;7</li>
-          <li class="logo">KILN</li>
-        </ul>
+      <div class="trust-statement">
+        <p class="trust-big">Trusted by founders and tech leaders at fast-moving teams.</p>
+      </div>
+      <div class="trust-marquees" id="trust-marquees" aria-hidden="true">
+        <div class="marquee"><div class="marquee-track"></div></div>
+        <div class="marquee"><div class="marquee-track"></div></div>
+        <div class="marquee"><div class="marquee-track"></div></div>
+        <div class="marquee"><div class="marquee-track"></div></div>
+        <div class="marquee"><div class="marquee-track"></div></div>
       </div>
     </section>
 
     <!-- ================= SECTION 3 · WHAT WE DO ================= -->
     <section class="section" id="what-we-do">
       <div class="container">
+        <p class="section-label"><span>Section 03</span> What we do</p>
         <header class="section-head">
           <p class="eyebrow">// WHAT WE DO</p>
           <h2 class="section-title">We rebuilt the software factory.</h2>
@@ -96,6 +77,7 @@
     <!-- ================= SECTION 4 · WHY MAINLINE ================= -->
     <section class="section section-invert" id="why-mainline">
       <div class="container">
+        <p class="section-label"><span>Section 04</span> Why Mainline</p>
         <header class="section-head">
           <p class="eyebrow">// THE METHODOLOGY</p>
           <h2 class="section-title">Mainline. The line every project ships to.</h2>
@@ -125,6 +107,7 @@
     <!-- ================= SECTION 5 · THE PHASES ================= -->
     <section class="section" id="phases">
       <div class="container">
+        <p class="section-label"><span>Section 05</span> The phases</p>
         <header class="section-head">
           <p class="eyebrow">// HOW WE BUILD</p>
           <h2 class="section-title">Nine phases. One main line.</h2>
@@ -151,6 +134,7 @@
     <!-- ================= SECTION 6 · OUTCOMES ================= -->
     <section class="section section-invert" id="outcomes">
       <div class="container">
+        <p class="section-label"><span>Section 06</span> Outcomes</p>
         <header class="section-head">
           <p class="eyebrow">// OUTCOMES</p>
           <h2 class="section-title">What changes when you ship to Mainline.</h2>
@@ -180,6 +164,7 @@
     <!-- ================= SECTION 7 · CLOSING CTA ================= -->
     <section class="closing" id="contact">
       <div class="container">
+        <p class="section-label"><span>Section 07</span> Start a project</p>
         <p class="eyebrow">// YOUR TURN</p>
         <h2 class="closing-title">Got an idea?<br>Let's get it on Mainline.</h2>
         <p class="closing-sub">
@@ -204,6 +189,6 @@
     </div>
   </footer>
 
-  <script type="module" src="js/main.js"></script>
+  <script src="js/main.js"></script>
 </body>
 </html>

@@ -1,12 +1,31 @@
-import { animate, stagger, createAnimatable } from 'https://cdn.jsdelivr.net/npm/animejs@4/+esm';
+'use strict';
+
+// --- Config ---
+const TRUST_LOGOS = ['frame1', 'frame2', 'frame3', 'frame4', 'frame5', 'frame6', 'frame7'];
 
 // --- DOM Elements ---
 const phaseList = document.getElementById('phase-list');
-const ringsSvg = document.querySelector('.rings-svg');
-const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-// --- Config ---
-const MAX_TILT = 16.8; // degrees the disc field leans toward the cursor (+5%)
+// Fill each logo stripe. Each track holds the logo set twice so the
+// translateX(-50%) loop is seamless; rows are rotated so they differ.
+function initTrustMarquees() {
+  const tracks = document.querySelectorAll('.marquee-track');
+  tracks.forEach((track, row) => {
+    const offset = row % TRUST_LOGOS.length;
+    const rotated = TRUST_LOGOS.slice(offset).concat(TRUST_LOGOS.slice(0, offset));
+    const fragment = document.createDocumentFragment();
+    for (let copy = 0; copy < 2; copy++) {
+      rotated.forEach((name) => {
+        const img = document.createElement('img');
+        img.src = `assets/images/${name}.svg`;
+        img.alt = '';
+        img.className = 'marquee-logo';
+        fragment.appendChild(img);
+      });
+    }
+    track.appendChild(fragment);
+  });
+}
 
 // Reveal phase rows one-by-one as they enter the viewport.
 function initPhaseReveal() {
@@ -35,54 +54,10 @@ function initPhaseReveal() {
   rows.forEach((row) => observer.observe(row));
 }
 
-// Pulsing background: halo breathes, ring field shimmers, ripples emit outward.
-function initPulseBackground() {
-  if (prefersReducedMotion) return; // leave the static ring field in place
-
-  // Disc field — staggered pulse; opacity pulse makes the stacked
-  // center breathe darker/lighter (each disc offset from the last)
-  animate('.pulse-ring', {
-    scale: [0.98, 1.04],
-    opacity: [0.6, 1],
-    ease: 'inOutSine',
-    duration: 3600,
-    loop: true,
-    alternate: true,
-    delay: stagger(240),
-  });
-}
-
-// Tilt the disc field toward the cursor. createAnimatable eases each axis
-// smoothly toward the latest target instead of snapping on every mousemove.
-function initCursorTilt() {
-  if (prefersReducedMotion || !ringsSvg) return;
-  if (window.matchMedia('(pointer: coarse)').matches) return; // skip touch devices
-
-  const tilt = createAnimatable(ringsSvg, {
-    rotateX: 700,
-    rotateY: 700,
-    ease: 'out(3)',
-  });
-
-  window.addEventListener('mousemove', (e) => {
-    const dx = (e.clientX / window.innerWidth) * 2 - 1;  // -1 .. 1
-    const dy = (e.clientY / window.innerHeight) * 2 - 1; // -1 .. 1
-    tilt.rotateY(dx * MAX_TILT);
-    tilt.rotateX(-dy * MAX_TILT);
-  });
-
-  // ease back to flat when the cursor leaves the window
-  window.addEventListener('mouseleave', () => {
-    tilt.rotateX(0);
-    tilt.rotateY(0);
-  });
-}
-
 // --- Init ---
 function init() {
   initPhaseReveal();
-  initPulseBackground();
-  initCursorTilt();
+  initTrustMarquees();
 }
 
 document.addEventListener('DOMContentLoaded', init);

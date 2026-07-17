@@ -13,6 +13,7 @@
 
   /* Typography */
   --font-display: 'Geist Mono', 'Space Mono', monospace;
+  --font-hero: 'JetBrains Mono', ui-monospace, monospace;
   --font-mono:    'Space Mono', 'Courier New', monospace;
 
   --text-xs:   0.75rem;
@@ -66,32 +67,26 @@ body {
   background-size: 40px 40px;
 }
 
-/* Fixed pulsing background — centered, behind all content */
-.rings {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  overflow: hidden;
-  pointer-events: none;
-  display: grid;
-  place-items: center;
-  perspective: 900px;
+/* Shared section label — "Section 0X — Name" */
+.section-label {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: var(--text-sm);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding-bottom: var(--space-4);
+  margin-bottom: var(--space-12);
+  border-bottom: var(--border);
 }
-.rings-svg {
-  width: min(100vh, 100vw);
-  height: min(100vh, 100vw);
-  overflow: hidden;
-  transform-origin: center;
-  will-change: transform;
+.section-label span {
+  background: var(--color-ink);
+  color: var(--color-paper);
+  padding: var(--space-1) var(--space-2);
 }
-.pulse-ring, .ripple, .core-dot {
-  transform-box: fill-box;
-  transform-origin: center;
-  will-change: transform, opacity;
-}
-
-/* Content sits one level above the animation */
-main, .site-footer { position: relative; z-index: 1; }
+.section-invert .section-label { border-color: var(--color-ink); }
 
 a { color: inherit; text-decoration: none; }
 ul, ol { list-style: none; }
@@ -213,106 +208,159 @@ h1, h2, h3 {
    6. SECTION 1 · HERO
    ========================================================= */
 .hero {
-  padding: var(--space-24) 0 0;
-  border-bottom: var(--border-thick);
   position: relative;
-  background: transparent;
-  min-height: 100dvh;
+  height: 100dvh;
+  border-bottom: var(--border-thick);
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  text-align: center;
+  padding: 0;
+  font-family: var(--font-hero);
 }
-.hero-title {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: var(--text-4xl);
-  margin: 0 auto var(--space-8);
-  max-width: 20ch;
+/* corner section label */
+.hero-tag {
+  position: absolute;
+  top: var(--space-6);
+  left: var(--space-6);
+  z-index: 2;
+  font-family: var(--font-hero);
+  font-weight: 700;
+  font-size: var(--text-sm);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background: var(--color-ink);
+  color: var(--color-paper);
+  padding: var(--space-2) var(--space-3);
 }
+/* content: subheading above the big heading, vertically centered */
 .hero-content {
   flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-6);
 }
 .hero-sub {
-  font-size: var(--text-lg);
-  max-width: 46ch;
-  margin: 0 auto;
+  font-family: var(--font-hero);
   font-weight: 400;
+  font-size: var(--text-lg);
+  max-width: 52ch;
 }
-.hero-actions {
-  width: 100%;
-  margin-bottom: var(--space-16);
-  padding-top: var(--space-4);
-  padding-bottom: var(--space-4);
-  border: var(--border);
+.hero-title {
+  font-family: var(--font-hero);
+  font-weight: 800;
+  font-size: clamp(2.75rem, 7vw, 6rem);
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+  text-transform: none;
+  max-width: 20ch;
 }
-.hero .cta-row { justify-content: flex-start; }
-
-/* marquee ticker */
-.hero-ticker {
-  margin-top: auto;
-  border-top: var(--border);
+/* bottom nav bar: 1px border only, buttons left-justified */
+.hero-nav {
+  display: flex;
+  justify-content: flex-start;
+  gap: 0;
+  padding: 0;
+  border: none;
+  border-top: 2px solid var(--color-ink);
+  border-bottom: 2px solid var(--color-ink);
+}
+.hero-btn {
+  font-family: var(--font-hero);
+  font-weight: 500;
+  font-size: var(--text-base);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  padding: 12px;
+  background: transparent;
+  border: none;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
+}
+.hero-btn:first-child { border-right: 2px solid var(--color-ink); }
+.hero-btn:last-child { border-right: 2px solid var(--color-ink); }
+.hero-btn:hover, .hero-btn:focus {
   background: var(--color-ink);
   color: var(--color-paper);
-  overflow: hidden;
-  white-space: nowrap;
 }
-.ticker-track {
-  display: inline-flex;
-  animation: ticker 22s linear infinite;
-}
-.ticker-track span {
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: var(--text-xl);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: var(--space-4) 0;
-}
-.ticker-track span:nth-child(2n) { color: var(--color-ring); }
-@keyframes ticker {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
-}
+.hero-btn:active { transform: translate(2px, 2px); }
 
 /* =========================================================
    7. SECTION 2 · TRUST STRIP
    ========================================================= */
 .trust {
+  background: var(--color-invert-bg);
+  color: var(--color-invert-fg);
+  display: flex;
+  align-items: stretch;
+}
+
+/* div 2 (text) — ~60%, the focal point */
+.trust-statement {
+  flex: 0 0 60%;
+  max-width: 60%;
+  padding: var(--space-16) var(--space-6);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* div 1 — five scrolling logo stripes, ~40%, clips bleeding content */
+.trust-marquees {
+  flex: 0 0 40%;
+  max-width: 40%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-8);
   padding: var(--space-12) 0;
-  border-bottom: var(--border-thick);
-  background: transparent;
+  border-left: 1px solid var(--color-invert-fg);
 }
-.trust-header {
-  font-family: var(--font-mono);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  font-size: var(--text-sm);
-  margin-bottom: var(--space-8);
+.marquee { overflow: hidden; width: 100%; }
+.marquee-track {
+  display: flex;
+  align-items: center;
+  gap: var(--space-16);
+  width: max-content;
+  will-change: transform;
+  animation: marquee-left 45s linear infinite;
 }
-.logo-row {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0;
-  border: var(--border);
+.marquee:nth-child(even) .marquee-track { animation-name: marquee-right; }
+.marquee:nth-child(1) .marquee-track { animation-duration: 52s; }
+.marquee:nth-child(2) .marquee-track { animation-duration: 38s; }
+.marquee:nth-child(3) .marquee-track { animation-duration: 60s; }
+.marquee:nth-child(4) .marquee-track { animation-duration: 43s; }
+.marquee:nth-child(5) .marquee-track { animation-duration: 48s; }
+.marquee-logo {
+  height: 34px;
+  width: auto;
+  flex: none;
+  filter: brightness(0) invert(1);   /* force white on the dark strip */
+  opacity: 0.8;
+  transition: opacity 0.2s ease;
 }
-.logo {
-  font-family: var(--font-display);
-  font-weight: 900;
-  font-size: var(--text-lg);
+.marquee-logo:hover { opacity: 1; }
+@keyframes marquee-left {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+@keyframes marquee-right {
+  from { transform: translateX(-50%); }
+  to   { transform: translateX(0); }
+}
+
+/* big statement text */
+.trust-big {
+  font-family: var(--font-hero);
+  font-weight: 800;
+  font-size: clamp(2rem, 5vw, 4rem);
+  line-height: 1.05;
   letter-spacing: -0.02em;
-  padding: var(--space-6) var(--space-4);
-  text-align: center;
-  border: var(--border);
-  margin: -0.5px;
-  filter: grayscale(1);
-  transition: background 0.15s ease, color 0.15s ease;
+  max-width: 26ch;
+  color: var(--color-invert-fg);
 }
-.logo:hover { background: var(--color-ink); color: var(--color-accent-2); }
 
 /* =========================================================
    8. SHARED SECTION SHELL
@@ -509,7 +557,6 @@ h1, h2, h3 {
    ========================================================= */
 @media (min-width: 640px) {
   .logo-row { grid-template-columns: repeat(3, 1fr); }
-  .hero-title { font-size: var(--text-5xl); }
 }
 
 @media (min-width: 900px) {
@@ -521,8 +568,6 @@ h1, h2, h3 {
 
   .method-grid { grid-template-columns: 1.4fr 1fr; gap: var(--space-16); }
 
-  .hero { padding-top: 8rem; }
-  .hero-title { font-size: 7rem; }
   .section-title { font-size: var(--text-4xl); }
   .closing-title { font-size: var(--text-5xl); }
 
@@ -531,8 +576,19 @@ h1, h2, h3 {
   .phase-desc { grid-column: auto; }
 }
 
+/* stack the trust columns on narrow screens */
+@media (max-width: 720px) {
+  .trust { flex-direction: column; }
+  .trust-statement,
+  .trust-marquees {
+    flex: none;
+    max-width: 100%;
+  }
+  .trust-marquees { border-left: none; border-top: 1px solid var(--color-invert-fg); }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .ticker-track { animation: none; }
+  .ticker-track, .marquee-track { animation: none; }
   .phase { opacity: 1; transform: none; transition: none; }
   html { scroll-behavior: auto; }
 }
