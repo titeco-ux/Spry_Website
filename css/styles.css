@@ -54,6 +54,7 @@
 html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
 
 body {
+  position: relative;
   font-family: var(--font-mono);
   background: var(--color-paper);
   color: var(--color-ink);
@@ -91,6 +92,33 @@ body {
   will-change: transform, opacity;
 }
 
+/* Two centre lines. Hero line sits BEHIND the circles (z-1, over the backdrop);
+   the site line covers everything below the hero and passes on top. */
+.hero-line {
+  position: absolute;
+  top: 0;
+  height: 100dvh;
+  left: 50%;
+  width: 1px;
+  transform: translateX(-0.5px);
+  background: rgba(255, 255, 255, 0.4);
+  z-index: -1;
+  pointer-events: none;
+}
+.mainline {
+  position: absolute;
+  top: 100dvh;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  transform: translateX(-0.5px);
+  background: #ffffff;
+  mix-blend-mode: difference;
+  opacity: 0.4;
+  z-index: 60;
+  pointer-events: none;
+}
+
 /* Dark hero backdrop — sits BEHIND the circles, covers only the hero screen */
 .hero-backdrop {
   position: absolute;
@@ -103,7 +131,10 @@ body {
 }
 
 /* Content sits one level above the animation */
-main, .site-footer { position: relative; z-index: 1; }
+/* main is NOT a stacking context, so sections can be layered around the
+   fixed mainline individually. Each section sits above the rings (z0). */
+main > section { position: relative; z-index: 1; }
+.site-footer { position: relative; z-index: 1; }
 
 a { color: inherit; text-decoration: none; }
 ul, ol { list-style: none; }
@@ -227,7 +258,6 @@ h1, h2, h3 {
 .hero {
   margin: 0;
   padding: 0;
-  border-bottom: var(--border-thick);
   position: relative;
   background: transparent;
   color: var(--color-invert-fg);
@@ -257,32 +287,52 @@ h1, h2, h3 {
   font-size: var(--text-lg);
   max-width: 46ch;
   margin: 0;
-  font-weight: 200;
+  font-weight: 300;
 }
-/* div 2 — full-width bar, top/bottom stroke only, separator between links */
+/* div 2 — full-width bar, top stroke only, dividers between/after links */
 .hero-nav {
   display: flex;
   gap: 0;
   padding: 0;
   border: none;
-  border-top: 2px solid var(--color-invert-fg);
-  border-bottom: 2px solid var(--color-invert-fg);
+  transition: background 0.15s ease, border-color 0.15s ease;
 }
 .hero-btn {
-  font-family: var(--font-mono);
-  font-weight: 700;
+  font-family: var(--font-hero);
+  font-weight: 300;
   font-size: var(--text-base);
   text-transform: uppercase;
   letter-spacing: 0.03em;
   padding: 12px;
   color: var(--color-invert-fg);
   background: transparent;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: color 0.15s ease, border-color 0.15s ease;
 }
-.hero-btn + .hero-btn { border-left: 2px solid var(--color-invert-fg); }
-.hero-btn:hover, .hero-btn:focus {
+
+/* hover FIRST link -> whole bar orange; borders/dividers blend into the fill */
+.hero-nav:has(.hero-btn:first-child:hover) {
+  background: var(--color-ring);
+  border-top-color: var(--color-ring);
+}
+.hero-nav:has(.hero-btn:first-child:hover) .hero-btn {
+  color: var(--color-invert-fg);
+  border-color: var(--color-ring);
+}
+.hero-nav:has(.hero-btn:first-child:hover) .hero-btn:last-child {
+  color: rgba(244, 242, 234, 0.45); /* the other link — deactivated */
+}
+
+/* hover LAST link -> whole bar light; borders/dividers blend into the fill */
+.hero-nav:has(.hero-btn:last-child:hover) {
   background: var(--color-invert-fg);
+  border-top-color: var(--color-invert-fg);
+}
+.hero-nav:has(.hero-btn:last-child:hover) .hero-btn {
   color: var(--color-invert-bg);
+  border-color: var(--color-invert-fg);
+}
+.hero-nav:has(.hero-btn:last-child:hover) .hero-btn:first-child {
+  color: rgba(10, 10, 10, 0.4); /* the other link — deactivated */
 }
 
 /* marquee ticker */
@@ -317,9 +367,11 @@ h1, h2, h3 {
    ========================================================= */
 .trust {
   padding: var(--space-8) 0;
-  border-bottom: var(--border-thick);
   background: var(--color-paper);
   overflow: hidden;
+  border-bottom: 1px solid rgba(10, 10, 10, 0.4);
+  position: relative;
+  z-index: 70; /* passes on top of the mainline */
 }
 .belt { overflow: hidden; width: 100%; }
 .belt-track {
@@ -367,6 +419,226 @@ h1, h2, h3 {
   font-weight: 400;
   max-width: 54ch;
 }
+
+/* =========================================================
+   8b. SECTION 3 · WHAT WE DO (sticky icon + scrolling cards)
+   ========================================================= */
+.wwd {
+  position: relative;
+  z-index: 1;
+  background: #D2CBBF;
+  color: var(--color-ink);
+  border-bottom: var(--border-thick);
+}
+.wwd-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+}
+
+/* div 1 — sticky, pins while the right column scrolls */
+.wwd-sticky {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-8);
+  overflow: hidden;
+}
+/* dotted mesh background (staggered dots, 20% opacity, waves via anime.js) */
+.wwd-mesh {
+  position: absolute;
+  inset: -60px;            /* oversize so mouse-move never reveals an edge */
+  opacity: 0.2;
+  pointer-events: none;
+  z-index: 0;
+  will-change: transform;
+}
+.wwd-dot {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  margin: -2.5px;
+  border-radius: 50%;
+  background: var(--color-ink);
+  transform-origin: center;
+  will-change: transform;
+}
+.wwd-sticky > .wwd-anim,
+.wwd-sticky > .wwd-tag,
+.wwd-sticky > .wwd-cta { position: relative; z-index: 1; }
+.wwd-anim {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: min(55%, 260px);
+  aspect-ratio: 1;
+}
+.wwd-icon {
+  grid-area: 1 / 1;
+  width: 100%;
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  transform: scale(0.7) rotate(-8deg);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.wwd-icon svg { width: 93%; height: auto; color: var(--color-ring); }
+/* the drawn icon is orange; the static clone behind is a deactivated mark */
+.wwd-ico .wwd-track { stroke: rgba(246, 56, 34, 0.3); }
+.wwd-anim[data-active="0"] .wwd-icon[data-i="0"],
+.wwd-anim[data-active="1"] .wwd-icon[data-i="1"],
+.wwd-anim[data-active="2"] .wwd-icon[data-i="2"],
+.wwd-anim[data-active="3"] .wwd-icon[data-i="3"] {
+  opacity: 1;
+  transform: none;
+}
+.wwd-tag {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: var(--text-sm);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.55;
+}
+
+/* right column — grid rows, no gap, divider strokes */
+.wwd-flow {
+  display: grid;
+  grid-auto-rows: auto;
+  gap: 0;
+}
+.wwd-cell { padding: var(--space-16); }
+.wwd-intro {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.wwd-title {
+  font-family: var(--font-hero);
+  font-weight: 800;
+  font-size: var(--text-3xl);
+  margin: var(--space-2) 0 var(--space-6);
+}
+.wwd-lead {
+  font-size: var(--text-lg);
+  font-weight: 400;
+  max-width: 46ch;
+}
+/* full-height card: number on the SIDE of the content, group centered */
+.wwd-card {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-8);
+  align-content: center;
+  border-top: 1px solid rgba(10, 10, 10, 0.4);
+}
+.wwd-no {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: var(--text-sm);
+  background: var(--color-ink);
+  color: var(--color-paper);
+  padding: var(--space-1) var(--space-2);
+  align-self: start;
+}
+.wwd-card-body { max-width: 46ch; }
+.wwd-card-title {
+  font-family: var(--font-hero);
+  font-weight: 800;
+  font-size: var(--text-2xl);
+  margin-bottom: var(--space-4);
+}
+
+/* plain full-height text block (methodology cells) */
+.wwd-block {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-6);
+}
+
+/* ---- stacking panels (What we do) ---- */
+.wwd { --head-h: 80px; }
+.wwd-panel {
+  position: sticky;
+  min-height: 100vh;
+  background: #D2CBBF;
+}
+.wwd-panel:nth-child(1) { top: 0; }
+.wwd-panel:nth-child(2) { top: var(--head-h); }
+.wwd-panel:nth-child(3) { top: calc(2 * var(--head-h)); }
+.wwd-panel:nth-child(4) { top: calc(3 * var(--head-h)); }
+
+/* div 3 & div 5 are all-black panels (alternate with the stone ones) */
+.wwd-panel[data-card="1"],
+.wwd-panel[data-card="3"] {
+  background: var(--color-ink);
+  color: var(--color-paper);
+}
+
+/* black heading bar (pins as the panel stacks) */
+.wwd-head {
+  height: var(--head-h);
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: 0 var(--space-8);
+  background: var(--color-ink);
+  color: var(--color-paper);
+  transition: background 0.3s ease, color 0.3s ease;
+}
+.wwd-hno {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: var(--text-sm);
+  color: var(--color-paper);
+  transition: color 0.3s ease;
+}
+.wwd-panel-title {
+  font-family: var(--font-hero);
+  font-weight: 800;
+  font-size: var(--text-lg);
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  line-height: 1;
+}
+.wwd-panel-body {
+  padding: var(--space-16) var(--space-8);
+}
+.wwd-panel-body p {
+  max-width: 46ch;
+  font-size: var(--text-lg);
+  font-weight: 400;
+}
+
+/* previous (stacked) panels get a deactivated heading */
+.wwd-panel.is-stacked .wwd-head {
+  background: #6e675b;
+  color: #cfc8bb;
+}
+.wwd-panel.is-stacked .wwd-hno { color: #cfc8bb; }
+
+/* mirrored variant — content left, sticky right */
+.wwd-cta {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: var(--text-base);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-ink);
+  border-bottom: 2px solid var(--color-ring);
+  padding-bottom: 3px;
+  transition: transform 0.15s ease;
+}
+.wwd-cta:hover { transform: translateX(6px); }
 
 /* =========================================================
    9. 3-COLUMN BRICKS (What we do / Outcomes)
@@ -552,7 +824,6 @@ h1, h2, h3 {
 
   .method-grid { grid-template-columns: 1.4fr 1fr; gap: var(--space-16); }
 
-  .hero { padding-top: 8rem; }
   .hero-title { font-size: 7rem; }
   .section-title { font-size: var(--text-4xl); }
   .closing-title { font-size: var(--text-5xl); }
@@ -562,8 +833,21 @@ h1, h2, h3 {
   .phase-desc { grid-column: auto; }
 }
 
+/* What-we-do stacks on narrow screens; sticky icon becomes static */
+@media (max-width: 800px) {
+  .mainline, .hero-line { display: none; }
+  .wwd-grid { grid-template-columns: 1fr; }
+  .wwd-sticky { position: static; height: 50vh; }
+  .wwd-flow { border-top: 1px solid rgba(10, 10, 10, 0.4); }
+  .wwd-cell { padding: var(--space-12) var(--space-6); }
+  .wwd-intro, .wwd-card { min-height: auto; }
+  .wwd-panel { position: static; min-height: auto; }
+  .wwd-panel-body { padding: var(--space-12) var(--space-6); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .ticker-track, .belt-track { animation: none; }
   .phase { opacity: 1; transform: none; transition: none; }
+  .wwd-icon { transition: none; }
   html { scroll-behavior: auto; }
 }
