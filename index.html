@@ -7,10 +7,13 @@
   <meta name="description" content="A small senior team. Agents at every station. We ship faster, cleaner, and with no handoffs. Built on Mainline.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;600;700;800;900&family=Space+Mono:wght@400;700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;600;700;800;900&family=JetBrains+Mono:wght@200;400;700;800&family=Space+Mono:wght@400;700&display=swap">
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
+
+  <!-- dark backdrop for the hero screen, sits behind the circles -->
+  <div class="hero-backdrop" aria-hidden="true"></div>
 
   <!-- ================= FIXED PULSE BACKGROUND ================= -->
   <div class="rings" id="rings" aria-hidden="true">
@@ -31,33 +34,35 @@
 
     <!-- ================= SECTION 1 · HERO ================= -->
     <section class="hero" id="hero">
-      <div class="container hero-content">
+      <div class="hero-content">
         <h1 class="hero-title">Your product,<br>on the main branch<br>from day one.</h1>
-        <p class="hero-sub">
-          A small senior team. Agents at every station.
-          We ship faster, cleaner, and with no handoffs.
-        </p>
+        <p class="hero-sub">A small senior team. Agents at every station. We ship faster, cleaner, and with no handoffs.</p>
       </div>
-      <div class="container hero-actions">
-        <div class="cta-row">
-          <a href="#contact" class="btn btn-outline">Start a project</a>
-          <a href="#why-mainline" class="btn btn-outline">See how Mainline works</a>
-        </div>
+      <div class="hero-nav">
+        <a href="#contact" class="hero-btn">Start a project</a>
+        <a href="#why-mainline" class="hero-btn">See how Mainline works</a>
       </div>
     </section>
 
     <!-- ================= SECTION 2 · TRUST STRIP ================= -->
     <section class="trust" aria-label="Trusted by">
-      <div class="container">
-        <p class="trust-header">Trusted by founders and tech leaders at fast-moving teams.</p>
-        <ul class="logo-row">
-          <li class="logo">NORTHWIND</li>
-          <li class="logo">VECTRA</li>
-          <li class="logo">HELIX&nbsp;OS</li>
-          <li class="logo">PONDER</li>
-          <li class="logo">ATLAS&nbsp;7</li>
-          <li class="logo">KILN</li>
-        </ul>
+      <div class="belt" aria-hidden="true">
+        <div class="belt-track">
+          <img class="belt-logo" src="assets/images/frame1.svg" alt="">
+          <img class="belt-logo" src="assets/images/frame2.svg" alt="">
+          <img class="belt-logo" src="assets/images/frame3.svg" alt="">
+          <img class="belt-logo" src="assets/images/frame4.svg" alt="">
+          <img class="belt-logo" src="assets/images/frame5.svg" alt="">
+          <img class="belt-logo" src="assets/images/frame6.svg" alt="">
+          <img class="belt-logo" src="assets/images/frame8.svg" alt="">
+          <img class="belt-logo" src="assets/images/frame1.svg" alt="">
+          <img class="belt-logo" src="assets/images/frame2.svg" alt="">
+          <img class="belt-logo" src="assets/images/frame3.svg" alt="">
+          <img class="belt-logo" src="assets/images/frame4.svg" alt="">
+          <img class="belt-logo" src="assets/images/frame5.svg" alt="">
+          <img class="belt-logo" src="assets/images/frame6.svg" alt="">
+          <img class="belt-logo" src="assets/images/frame8.svg" alt="">
+        </div>
       </div>
     </section>
 

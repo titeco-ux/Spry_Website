@@ -13,6 +13,7 @@
 
   /* Typography */
   --font-display: 'Geist Mono', 'Space Mono', monospace;
+  --font-hero: 'JetBrains Mono', ui-monospace, monospace;
   --font-mono:    'Space Mono', 'Courier New', monospace;
 
   --text-xs:   0.75rem;
@@ -88,6 +89,17 @@ body {
   transform-box: fill-box;
   transform-origin: center;
   will-change: transform, opacity;
+}
+
+/* Dark hero backdrop — sits BEHIND the circles, covers only the hero screen */
+.hero-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100dvh;
+  z-index: -1;
+  background: var(--color-invert-bg);
 }
 
 /* Content sits one level above the animation */
@@ -213,43 +225,65 @@ h1, h2, h3 {
    6. SECTION 1 · HERO
    ========================================================= */
 .hero {
-  padding: var(--space-24) 0 0;
+  margin: 0;
+  padding: 0;
   border-bottom: var(--border-thick);
   position: relative;
   background: transparent;
-  min-height: 100dvh;
+  color: var(--color-invert-fg);
+  height: 100dvh;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  text-align: center;
+  text-align: left;
 }
-.hero-title {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: var(--text-4xl);
-  margin: 0 auto var(--space-8);
-  max-width: 20ch;
-}
+/* div 1 — heading + subheading, left-justified */
 .hero-content {
   flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  align-items: flex-start;
+  padding: 0 20px;
+}
+.hero-title {
+  font-family: var(--font-hero);
+  font-weight: 400;
+  font-size: var(--text-4xl);
+  margin: 0 0 var(--space-8);
+  max-width: 20ch;
 }
 .hero-sub {
+  font-family: var(--font-hero);
   font-size: var(--text-lg);
   max-width: 46ch;
-  margin: 0 auto;
-  font-weight: 400;
+  margin: 0;
+  font-weight: 200;
 }
-.hero-actions {
-  width: 100%;
-  margin-bottom: var(--space-16);
-  padding-top: var(--space-4);
-  padding-bottom: var(--space-4);
-  border: var(--border);
+/* div 2 — full-width bar, top/bottom stroke only, separator between links */
+.hero-nav {
+  display: flex;
+  gap: 0;
+  padding: 0;
+  border: none;
+  border-top: 2px solid var(--color-invert-fg);
+  border-bottom: 2px solid var(--color-invert-fg);
 }
-.hero .cta-row { justify-content: flex-start; }
+.hero-btn {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: var(--text-base);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 12px;
+  color: var(--color-invert-fg);
+  background: transparent;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.hero-btn + .hero-btn { border-left: 2px solid var(--color-invert-fg); }
+.hero-btn:hover, .hero-btn:focus {
+  background: var(--color-invert-fg);
+  color: var(--color-invert-bg);
+}
 
 /* marquee ticker */
 .hero-ticker {
@@ -282,37 +316,34 @@ h1, h2, h3 {
    7. SECTION 2 · TRUST STRIP
    ========================================================= */
 .trust {
-  padding: var(--space-12) 0;
+  padding: var(--space-8) 0;
   border-bottom: var(--border-thick);
-  background: transparent;
+  background: var(--color-paper);
+  overflow: hidden;
 }
-.trust-header {
-  font-family: var(--font-mono);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  font-size: var(--text-sm);
-  margin-bottom: var(--space-8);
+.belt { overflow: hidden; width: 100%; }
+.belt-track {
+  display: flex;
+  align-items: center;
+  gap: var(--space-16);
+  width: max-content;
+  will-change: transform;
+  animation: belt-scroll 42s linear infinite;
 }
-.logo-row {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0;
-  border: var(--border);
-}
-.logo {
-  font-family: var(--font-display);
-  font-weight: 900;
-  font-size: var(--text-lg);
-  letter-spacing: -0.02em;
-  padding: var(--space-6) var(--space-4);
-  text-align: center;
-  border: var(--border);
-  margin: -0.5px;
+.belt-logo {
+  height: 34px;
+  width: auto;
+  flex: none;
   filter: grayscale(1);
-  transition: background 0.15s ease, color 0.15s ease;
+  opacity: 0.75;
+  transition: opacity 0.2s ease;
 }
-.logo:hover { background: var(--color-ink); color: var(--color-accent-2); }
+.belt-logo:hover { opacity: 1; }
+/* moving left -> right */
+@keyframes belt-scroll {
+  from { transform: translateX(-50%); }
+  to   { transform: translateX(0); }
+}
 
 /* =========================================================
    8. SHARED SECTION SHELL
@@ -532,7 +563,7 @@ h1, h2, h3 {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .ticker-track { animation: none; }
+  .ticker-track, .belt-track { animation: none; }
   .phase { opacity: 1; transform: none; transition: none; }
   html { scroll-behavior: auto; }
 }
