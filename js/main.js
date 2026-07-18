@@ -241,6 +241,279 @@ function initWwdIcons() {
   });
 }
 
+// Oscillating traveling waves in the methodology right div (div 7).
+// One bold main line through the middle + thinner lines above and below.
+// The waveform travels left -> right; amplitude breathes ("oscillates").
+function initMethodWave() {
+  const canvas = document.getElementById('method-wave');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const mount = canvas.parentElement;
+
+  // Read brand colors from CSS custom properties.
+  const css = getComputedStyle(document.documentElement);
+  const ink = (css.getPropertyValue('--color-ink') || '#0a0a0a').trim();
+  const accent = (css.getPropertyValue('--color-accent') || '#ff3d00').trim();
+
+  // Line config: main = bold accent line in the middle;
+  // the rest are thinner ink lines fanning out above and below.
+  const LINES = [
+    { offset: -0.30, amp: 0.06, width: 0.5,  color: ink,    alpha: 0.28, speed: 1.0 },
+    { offset: -0.16, amp: 0.10, width: 0.75, color: ink,    alpha: 0.45, speed: 1.0 },
+    { offset:  0.00, amp: 0.20, width: 16,   color: accent, alpha: 1.00, speed: 1.0, fillMesh: true }, // main line
+    { offset:  0.16, amp: 0.10, width: 0.75, color: ink,    alpha: 0.45, speed: 1.0, fillDown: true },
+    { offset:  0.30, amp: 0.06, width: 0.5,  color: ink,    alpha: 0.28, speed: 1.0, fillDown: true },
+  ];
+  // orange mesh fill spans the band between the orange wave and the wave below it
+  LINES[2].bandBelow = LINES[3];
+
+  // Dotted hex-ish mesh, baked into an offscreen tile -> repeating pattern.
+  const makeDotPattern = () => {
+    const cw = 24, ch = 42; // 24 × ~24·√3 → hexagonal spacing
+    const tile = document.createElement('canvas');
+    tile.width = cw; tile.height = ch;
+    const tc = tile.getContext('2d');
+    tc.fillStyle = 'rgba(255,255,255,0.9)';   // white dots
+    const dot = (x, y) => { tc.beginPath(); tc.arc(x, y, 1.2, 0, Math.PI * 2); tc.fill(); };
+    // lattice A (corners) + lattice B (offset by half-cell) = hex lattice
+    dot(0, 0); dot(cw, 0); dot(0, ch); dot(cw, ch);
+    dot(cw / 2, ch / 2);
+    return ctx.createPattern(tile, 'repeat');
+  };
+  const dotPattern = makeDotPattern();
+
+  let w = 0, h = 0, dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const resize = () => {
+    w = mount.clientWidth;
+    h = mount.clientHeight;
+    if (!w || !h) return;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  };
+  resize();
+  window.addEventListener('resize', resize);
+
+  // Reduced motion: draw one static frame and stop.
+  const drawFrame = (t) => {
+    if (!w || !h) { resize(); return; }
+    ctx.clearRect(0, 0, w, h);
+    const midY = h / 2;
+    const time = t * 0.001;
+    const k = (Math.PI * 2) / (w * 0.55);   // wave length (same for all lines)
+
+    // y of a given line's wave at horizontal position x
+    const waveY = (line, x) => {
+      const breathe = 0.75 + 0.25 * Math.sin(time * 0.8 + line.offset * 6);
+      const amp = h * line.amp * breathe;
+      const baseY = midY + h * line.offset;
+      const phase = time * line.speed * 2.2; // travels left -> right
+      return baseY + Math.sin(x * k - phase) * amp;
+    };
+
+    for (const line of LINES) {
+      // band fill between the orange wave (top) and the wave below it (bottom)
+      if (line.bandBelow) {
+        ctx.beginPath();
+        for (let x = 0; x <= w; x += 4) {
+          const y = waveY(line, x);
+          x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+        }
+        for (let x = w; x >= 0; x -= 4) ctx.lineTo(x, waveY(line.bandBelow, x));
+        ctx.closePath();
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = line.color;   // orange backing
+        ctx.fill();
+        if (line.fillMesh) {
+          ctx.fillStyle = dotPattern; // white dot mesh on top
+          ctx.fill();
+        }
+      }
+
+      // fill the area from the wave down to the bottom border (40% opacity)
+      if (line.fillDown) {
+        ctx.beginPath();
+        for (let x = 0; x <= w; x += 4) {
+          const y = waveY(line, x);
+          x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+        }
+        ctx.lineTo(w, h);
+        ctx.lineTo(0, h);
+        ctx.closePath();
+        ctx.globalAlpha = 0.4;
+        ctx.fillStyle = line.color;
+        ctx.fill();
+      }
+
+      // the wave line itself
+      ctx.beginPath();
+      for (let x = 0; x <= w; x += 4) {
+        const y = waveY(line, x);
+        x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }
+      ctx.globalAlpha = line.alpha;
+      ctx.strokeStyle = line.color;
+      ctx.lineWidth = line.width;
+      ctx.lineCap = 'round';
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+  };
+
+  if (prefersReducedMotion) {
+    drawFrame(0);
+    return;
+  }
+
+  let raf;
+  const loop = (t) => { drawFrame(t); raf = requestAnimationFrame(loop); };
+  raf = requestAnimationFrame(loop);
+}
+
+// 9-vertex polygon in the "How we build" right div (.phases-void, sticky).
+// The div stays pinned while the left phase list scrolls. Each phase row maps
+// to one vertex; as a row scrolls past the viewport centre its vertex pops up
+// and lights a pulsating circle, and the polygon edge to it is drawn in.
+function initPhasePolygon() {
+  const canvas = document.getElementById('phases-polygon');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const mount = canvas.parentElement;
+
+  const rows = Array.from(document.querySelectorAll('#phases .outcome'));
+  const N = rows.length || 9;
+  const labels = rows.map((r, i) =>
+    (r.querySelector('.outcome-tag')?.textContent || String(i + 1).padStart(2, '0')).trim()
+  );
+
+  const css = getComputedStyle(document.documentElement);
+  const ink = (css.getPropertyValue('--color-ink') || '#0a0a0a').trim();
+  const accent = (css.getPropertyValue('--color-accent') || '#ff3d00').trim();
+  const paper = (css.getPropertyValue('--color-paper') || '#D2CBBF').trim();
+
+  const lit = new Array(N).fill(0); // eased 0..1 activation per vertex
+
+  let w = 0, h = 0, dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const resize = () => {
+    w = mount.clientWidth;
+    h = mount.clientHeight;
+    if (!w || !h) return;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  };
+  resize();
+  window.addEventListener('resize', resize);
+
+  // vertex i position (start at top, go clockwise)
+  const vertex = (i, cx, cy, R) => {
+    const a = -Math.PI / 2 + i * ((Math.PI * 2) / N);
+    return [cx + R * Math.cos(a), cy + R * Math.sin(a)];
+  };
+
+  // index of the last phase row whose centre has passed the viewport centre
+  const activeIndex = () => {
+    const mid = window.innerHeight * 0.5;
+    let idx = -1;
+    rows.forEach((r, i) => {
+      const rect = r.getBoundingClientRect();
+      if (rect.top + rect.height / 2 <= mid) idx = i;
+    });
+    return idx;
+  };
+
+  const drawFrame = (t) => {
+    if (!w || !h) { resize(); return; }
+    ctx.clearRect(0, 0, w, h);
+    const time = t * 0.001;
+    const cx = w / 2, cy = h / 2;
+    const R = Math.min(w, h) * 0.36;
+    const active = activeIndex();
+
+    // ease activation toward target (1 if scrolled past, else 0)
+    for (let i = 0; i < N; i++) {
+      const target = i <= active ? 1 : 0;
+      lit[i] += (target - lit[i]) * 0.12;
+    }
+
+    // base polygon outline (faint, on the dark fill)
+    ctx.globalAlpha = 0.30;
+    ctx.strokeStyle = paper;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (let i = 0; i < N; i++) {
+      const [x, y] = vertex(i, cx, cy, R);
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+    ctx.stroke();
+
+    // activated edges drawn in orange, following the scroll progress
+    if (active >= 1) {
+      ctx.globalAlpha = 1;
+      ctx.strokeStyle = accent;
+      ctx.lineWidth = 3;
+      ctx.lineJoin = 'round';
+      ctx.beginPath();
+      for (let i = 0; i <= active; i++) {
+        const [x, y] = vertex(i, cx, cy, R);
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+    }
+
+    // vertices
+    for (let i = 0; i < N; i++) {
+      const [x, y] = vertex(i, cx, cy, R);
+      const on = lit[i];
+
+      // dormant marker
+      ctx.globalAlpha = 0.35 + 0.4 * on;
+      ctx.fillStyle = on > 0.02 ? accent : paper;
+      ctx.beginPath();
+      ctx.arc(x, y, 4 + 8 * on, 0, Math.PI * 2);
+      ctx.fill();
+
+      if (on > 0.05) {
+        // number pops up inside the vertex
+        ctx.globalAlpha = on;
+        ctx.fillStyle = paper;
+        ctx.font = `700 ${11 * on + 2}px ui-monospace, monospace`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(labels[i], x, y + 0.5);
+      }
+    }
+
+    // pulsating circle on the current (active) vertex
+    if (active >= 0) {
+      const [x, y] = vertex(active, cx, cy, R);
+      // breathing ring
+      const br = 16 + 4 * Math.sin(time * 5);
+      ctx.globalAlpha = 0.5 + 0.25 * Math.sin(time * 5);
+      ctx.strokeStyle = accent;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(x, y, br, 0, Math.PI * 2);
+      ctx.stroke();
+      // expanding radar ping
+      const ping = (time * 0.8) % 1;
+      ctx.globalAlpha = (1 - ping) * 0.6;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(x, y, 14 + ping * 30, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
+    ctx.globalAlpha = 1;
+  };
+
+  if (prefersReducedMotion) { drawFrame(0); return; }
+  let raf;
+  const loop = (t) => { drawFrame(t); raf = requestAnimationFrame(loop); };
+  raf = requestAnimationFrame(loop);
+}
+
 // --- Init ---
 function init() {
   initPhaseReveal();
@@ -249,6 +522,8 @@ function init() {
   initWwdAnim();
   initWwdMesh();
   initWwdIcons();
+  initMethodWave();
+  initPhasePolygon();
 }
 
 document.addEventListener('DOMContentLoaded', init);

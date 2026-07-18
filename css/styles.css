@@ -55,7 +55,8 @@ html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
 
 body {
   position: relative;
-  font-family: var(--font-mono);
+  font-family: var(--font-hero);
+  font-weight: 300;
   background: var(--color-paper);
   color: var(--color-ink);
   line-height: 1.55;
@@ -156,7 +157,14 @@ h1, h2, h3 {
   font-weight: 900;
   line-height: 0.98;
   letter-spacing: -0.02em;
-  text-transform: uppercase;
+}
+/* every h3 shares one style: JetBrains Mono, medium, 24px (like "Weeks, not quarters.") */
+h3 {
+  font-family: var(--font-hero);
+  font-weight: 500;
+  font-size: var(--text-xl);
+  line-height: 1.2;
+  letter-spacing: normal;
 }
 
 .eyebrow, .tag {
@@ -284,7 +292,7 @@ h1, h2, h3 {
 }
 .hero-sub {
   font-family: var(--font-hero);
-  font-size: var(--text-lg);
+  font-size: var(--text-base);
   max-width: 46ch;
   margin: 0;
   font-weight: 300;
@@ -415,8 +423,8 @@ h1, h2, h3 {
   margin: 0 0 var(--space-6);
 }
 .section-sub {
-  font-size: var(--text-lg);
-  font-weight: 400;
+  font-size: var(--text-base);
+  font-weight: 300;
   max-width: 54ch;
 }
 
@@ -526,8 +534,8 @@ h1, h2, h3 {
   margin: var(--space-2) 0 var(--space-6);
 }
 .wwd-lead {
-  font-size: var(--text-lg);
-  font-weight: 400;
+  font-size: var(--text-base);
+  font-weight: 300;
   max-width: 46ch;
 }
 /* full-height card: number on the SIDE of the content, group centered */
@@ -577,54 +585,43 @@ h1, h2, h3 {
 .wwd-panel:nth-child(3) { top: calc(2 * var(--head-h)); }
 .wwd-panel:nth-child(4) { top: calc(3 * var(--head-h)); }
 
-/* div 3 & div 5 are all-black panels (alternate with the stone ones) */
-.wwd-panel[data-card="1"],
-.wwd-panel[data-card="3"] {
-  background: var(--color-ink);
-  color: var(--color-paper);
-}
+/* all panels (div 2–5) share the same stone style */
 
-/* black heading bar (pins as the panel stacks) */
+/* heading bar (pins as the panel stacks) — always the deactivated look */
 .wwd-head {
   height: var(--head-h);
   display: flex;
   align-items: center;
   gap: var(--space-4);
   padding: 0 var(--space-8);
-  background: var(--color-ink);
-  color: var(--color-paper);
-  transition: background 0.3s ease, color 0.3s ease;
+  background: #6e675b;
+  color: #cfc8bb;
 }
 .wwd-hno {
   font-family: var(--font-mono);
   font-weight: 700;
   font-size: var(--text-sm);
-  color: var(--color-paper);
-  transition: color 0.3s ease;
+  color: #cfc8bb;
 }
 .wwd-panel-title {
   font-family: var(--font-hero);
-  font-weight: 800;
-  font-size: var(--text-lg);
-  text-transform: uppercase;
-  letter-spacing: -0.01em;
-  line-height: 1;
+  font-weight: 500;
+  font-size: var(--text-xl);
+  letter-spacing: normal;
+  line-height: 1.2;
 }
 .wwd-panel-body {
   padding: var(--space-16) var(--space-8);
 }
 .wwd-panel-body p {
   max-width: 46ch;
-  font-size: var(--text-lg);
-  font-weight: 400;
+  font-size: var(--text-base);
+  font-weight: 300;
 }
 
-/* previous (stacked) panels get a deactivated heading */
-.wwd-panel.is-stacked .wwd-head {
-  background: #6e675b;
-  color: #cfc8bb;
-}
-.wwd-panel.is-stacked .wwd-hno { color: #cfc8bb; }
+/* What we do — body copy dark ink on the stone panels */
+#what-we-do .wwd-panel-body,
+#what-we-do .wwd-panel-body p { color: var(--color-ink); }
 
 /* mirrored variant — content left, sticky right */
 .wwd-cta {
@@ -679,21 +676,196 @@ h1, h2, h3 {
 }
 .stat-title { font-size: var(--text-xl); }
 
+/* ---- Outcomes section: full-bleed 50/50, 100vh ---- */
+.outcomes {
+  position: relative;
+  z-index: 1;
+  border-bottom: var(--border-thick);
+}
+.outcomes-grid {
+  display: grid;
+  grid-template-columns: 1fr;   /* mobile: stacked */
+  gap: 0;
+  min-height: 100vh;            /* section fills the viewport */
+}
+/* LEFT — full height, heading block vertically centered like the hero */
+.outcomes-head {
+  flex: 1;   /* fills its column (Outcomes grid cell / Methodology top block) */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: var(--space-16) var(--space-8);
+  background: var(--color-paper);
+}
+.outcomes-kicker {
+  font-family: var(--font-hero);
+  font-weight: 500;                /* match the h3 style */
+  font-size: var(--text-xl);
+  color: var(--color-ink);
+  margin-bottom: var(--space-6);
+}
+.outcomes-title {
+  font-family: var(--font-hero);
+  font-weight: 400;
+  font-size: var(--text-4xl);   /* big, hero-like */
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  max-width: 16ch;              /* wraps within the left column, hero proportions */
+}
+.outcomes-sub {
+  font-size: var(--text-base);
+  font-weight: 300;
+  max-width: 46ch;
+  margin-top: var(--space-8);
+}
+/* RIGHT — divs with a far-left "NN / WORD" label + content */
+.outcomes-list {
+  display: flex;
+  flex-direction: column;
+}
+.outcome {
+  flex: 1;                            /* each fills a third of the full height */
+  display: grid;
+  grid-template-columns: 1fr auto;   /* content left | label far-right */
+  gap: var(--space-8);
+  align-content: center;             /* content centered within its full-height div */
+  padding: var(--space-8);
+  background: var(--color-paper);
+}
+.outcome + .outcome { border-top: var(--border); }
+.outcome-body { order: 1; }          /* content on the left */
+/* far-right label — black, regular weight */
+.outcome-tag {
+  order: 2;                          /* number/word on the right */
+  font-family: var(--font-mono);
+  font-weight: 400;
+  font-size: var(--text-base);
+  color: var(--color-ink);
+  white-space: nowrap;
+}
+.outcome-title {
+  font-family: var(--font-hero);
+  font-weight: 500;                  /* medium */
+  font-size: var(--text-xl);         /* 24px */
+  color: var(--color-ink);
+  margin-bottom: var(--space-4);
+}
+.outcome p { font-size: var(--text-base); font-weight: 300; }
+
+/* section 2 — animated polygon glyph on the left, content on the right */
+#what-we-do .outcome { grid-template-columns: auto 1fr; }
+.wwd-poly {
+  align-self: center;
+  width: 72px;
+  height: 72px;
+  color: var(--color-ink);
+}
+.wwd-poly svg { width: 100%; height: 100%; display: block; }
+/* single synced loop per glyph: draw → hold + blink one segment → erase → repeat */
+.poly-stroke {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: poly-draw 4.5s ease-in-out infinite;
+}
+@keyframes poly-draw {
+  0%   { stroke-dashoffset: 1; }   /* empty */
+  30%  { stroke-dashoffset: 0; }   /* drawn */
+  72%  { stroke-dashoffset: 0; }   /* held while the segment blinks */
+  100% { stroke-dashoffset: 1; }   /* erased, then loops back to drawing */
+}
+/* one fixed segment fills solid black and blinks after the shape is drawn */
+.poly-fill {
+  stroke: none;
+  fill: transparent;
+  animation: poly-blink 4.5s ease-in-out infinite;
+}
+@keyframes poly-blink {
+  0%, 33%  { fill: transparent; }
+  39%      { fill: var(--color-ink); }
+  45%      { fill: transparent; }
+  51%      { fill: var(--color-ink); }
+  57%, 100%{ fill: transparent; }
+}
+
 /* =========================================================
    10. SECTION 4 · WHY MAINLINE
    ========================================================= */
+.method {
+  --head-h: 80px;   /* same fixed heading-bar height as section 2 (.wwd) */
+  position: relative;
+  z-index: 1;
+  background: var(--color-paper);
+  border-bottom: var(--border-thick);   /* separator below the methodology section */
+}
+/* top block is 70vh, bottom (returned) content 30vh → 100vh total */
+.method-grid-top { min-height: 70vh; }
+.method-grid-bottom { min-height: 30vh; }
+/* horizontal divider between the top and bottom blocks */
+.method-grid-top { border-bottom: var(--border-thick); }
+/* border between split A and split B (bottom-right of section 3) */
+.method-grid-bottom .method-side-right .method-plain + .method-plain {
+  border-top: var(--border-thick);
+}
+/* full-bleed tight grid — no gaps, no borders; the #6e675b heading bars
+   are what separate the cards */
 .method-grid {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--space-12);
+  grid-template-columns: 1fr;   /* mobile: div 6 over div 7 */
+  gap: 0;
+  min-height: 0;                /* heights come from the flex 70/30 split */
 }
-.method-body {
-  font-size: var(--text-lg);
-  font-weight: 400;
-  border-left: var(--border-thick);
-  padding-left: var(--space-6);
+/* div 6 (left) / div 7 (right) — each a vertical column */
+.method-side {
+  display: flex;
+  flex-direction: column;
 }
-.callouts { display: flex; flex-direction: column; gap: var(--space-6); }
+/* div 4 (transparent spacer) fills the space above the CTA bar in div 7 */
+.method-side-right > .method-void { flex: 1; }
+
+/* section-3 cards — same panel look as section 2 (deactivated heading bar +
+   stone body). No shadow, no borders — the #6e675b heading bars separate them */
+.method-card { background: #D2CBBF; }
+.method-void { display: none; position: relative; background: transparent; } /* empty spacer — desktop grid only */
+/* oscillating wave animation — fills the transparent right div */
+.method-wave {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  z-index: 1; /* above the dotted mesh (::before) */
+}
+
+.method-card .wwd-panel-body {
+  padding: var(--space-8);
+  font-size: var(--text-base);
+  font-weight: 300;
+  color: var(--color-ink);
+}
+.method-card-title {
+  font-family: var(--font-hero);
+  font-weight: 500;                /* match the h3 style */
+  font-size: var(--text-xl);
+  margin-bottom: var(--space-4);
+}
+
+/* div 5 — single bar: same shape as .wwd-head but orange, link only */
+.method-cta-bar {
+  height: var(--head-h);
+  display: flex;
+  align-items: center;
+  padding: 0 var(--space-8);
+  background: var(--color-ink);
+  color: var(--color-paper);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: var(--text-base);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: background 0.15s ease;
+}
+.method-cta-bar:hover { background: var(--color-accent); }
+
 .callout {
   font-family: var(--font-display);
   font-weight: 800;
@@ -722,40 +894,22 @@ h1, h2, h3 {
 /* =========================================================
    11. SECTION 5 · PHASE LIST
    ========================================================= */
-.phase-list {
-  border-top: var(--border-thick);
+.phases {
+  --head-h: 80px;   /* heading-bar height, same as sections 2 & 3 */
+  position: relative;
+  z-index: 1;
+  border-bottom: var(--border-thick);
 }
-.phase {
+/* full-bleed 50/50 grid — intro + phase cards (left) | transparent (right) */
+.phases-grid {
   display: grid;
-  grid-template-columns: auto 1fr;
-  gap: var(--space-3) var(--space-4);
-  align-items: baseline;
-  padding: var(--space-6) 0;
-  border-bottom: var(--border);
-  opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.5s ease, transform 0.5s ease, background 0.15s ease;
+  grid-template-columns: 1fr;   /* mobile: single column */
+  gap: 0;
 }
-.phase.in { opacity: 1; transform: none; }
-.phase:hover { background: var(--color-accent-2); }
-.phase-num {
-  font-family: var(--font-display);
-  font-weight: 900;
-  font-size: var(--text-2xl);
-  color: var(--color-accent);
-  grid-row: span 2;
-}
-.phase-name {
-  font-family: var(--font-display);
-  font-weight: 900;
-  font-size: var(--text-2xl);
-  text-transform: uppercase;
-}
-.phase-desc {
-  grid-column: 2;
-  font-size: var(--text-base);
-  font-weight: 400;
-}
+.phases-main {}                 /* cards stack full-bleed, no padding */
+.phases-void { background: var(--color-ink); display: none; position: relative; }  /* filled right column */
+/* sticky polygon: stays pinned while the left phase list scrolls past */
+.phases-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 
 /* =========================================================
    12. SECTION 7 · CLOSING CTA
@@ -772,8 +926,8 @@ h1, h2, h3 {
   margin-bottom: var(--space-6);
 }
 .closing-sub {
-  font-size: var(--text-lg);
-  font-weight: 400;
+  font-size: var(--text-base);
+  font-weight: 300;
   max-width: 52ch;
   margin-bottom: var(--space-12);
 }
@@ -822,15 +976,24 @@ h1, h2, h3 {
   .cols-3 { grid-template-columns: repeat(3, 1fr); }
   .logo-row { grid-template-columns: repeat(6, 1fr); }
 
-  .method-grid { grid-template-columns: 1.4fr 1fr; gap: var(--space-16); }
+  .method-grid { grid-template-columns: 1fr 1fr; }  /* div 6 | div 7 — 50/50 */
+  .method-void { display: block; }
 
   .hero-title { font-size: 7rem; }
   .section-title { font-size: var(--text-4xl); }
   .closing-title { font-size: var(--text-5xl); }
 
-  .phase { grid-template-columns: 80px 260px 1fr; align-items: center; }
-  .phase-num { grid-row: auto; }
-  .phase-desc { grid-column: auto; }
+  .phases-grid { grid-template-columns: 1fr 1fr; }  /* div 1 | div 2 — 50/50 */
+  .phases-void {
+    display: block;
+    position: sticky;      /* pinned while the left phase list scrolls */
+    top: 0;
+    align-self: start;     /* don't stretch, so sticky has room to travel */
+    height: 100vh;
+  }
+
+  .outcomes-grid { grid-template-columns: 1fr 1fr; }  /* header | stats — 50/50 */
+  .outcomes-title { font-size: var(--text-5xl); }     /* hero-scale on desktop */
 }
 
 /* What-we-do stacks on narrow screens; sticky icon becomes static */
@@ -849,5 +1012,7 @@ h1, h2, h3 {
   .ticker-track, .belt-track { animation: none; }
   .phase { opacity: 1; transform: none; transition: none; }
   .wwd-icon { transition: none; }
+  .poly-stroke { animation: none; stroke-dashoffset: 0; }  /* draw fully, no loop */
+  .poly-fill { animation: none; fill: transparent; }
   html { scroll-behavior: auto; }
 }

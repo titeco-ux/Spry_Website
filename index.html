@@ -69,171 +69,250 @@
     </section>
 
     <!-- ================= SECTION 3 · WHAT WE DO ================= -->
-    <section class="wwd" id="what-we-do" aria-label="What we do">
-      <div class="wwd-grid">
+    <!-- same design as the other sections: header left | numbered items right -->
+    <section class="outcomes" id="what-we-do" aria-label="What we do">
+      <div class="outcomes-grid">
 
-        <!-- div 1 — sticky animation placeholder (left) -->
-        <div class="wwd-sticky">
-          <div class="wwd-anim" id="wwd-anim" data-active="0" aria-hidden="true">
-            <!-- flat line icons; anime.js createDrawable draws each one -->
-            <!-- 0 overview: 2x2 grid of stations -->
-            <div class="wwd-icon" data-i="0"><svg class="wwd-ico" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="20" y="20" width="24" height="24" rx="2"/><rect x="56" y="20" width="24" height="24" rx="2"/><rect x="20" y="56" width="24" height="24" rx="2"/><rect x="56" y="56" width="24" height="24" rx="2"/>
-            </svg></div>
-            <!-- 1 discover: magnifying glass -->
-            <div class="wwd-icon" data-i="1"><svg class="wwd-ico" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="44" cy="44" r="24"/><line x1="62" y1="62" x2="82" y2="82"/>
-            </svg></div>
-            <!-- 2 build: code brackets -->
-            <div class="wwd-icon" data-i="2"><svg class="wwd-ico" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M40 30 L20 50 L40 70"/><path d="M60 30 L80 50 L60 70"/>
-            </svg></div>
-            <!-- 3 verify: check in circle -->
-            <div class="wwd-icon" data-i="3"><svg class="wwd-ico" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="50" cy="50" r="30"/><path d="M36 51 L47 62 L66 38"/>
-            </svg></div>
-          </div>
-          <span class="wwd-tag">// section icon</span>
+        <!-- LEFT: header (no mesh, no animation) -->
+        <div class="outcomes-head">
+          <p class="outcomes-kicker">What we do</p>
+          <h2 class="outcomes-title">We rebuilt the software factory.</h2>
+          <p class="outcomes-sub">We rebuilt every station — research, design, dev, QA — around agents. The result is a small senior team that ships at a pace that didn't exist last year.</p>
         </div>
 
-        <!-- right column — panels stack, each pinning below the previous heading -->
-        <div class="wwd-flow">
-          <!-- div 2 -->
-          <div class="wwd-panel" data-card="0">
-            <div class="wwd-head">
-              <h3 class="wwd-panel-title">We rebuilt the software factory.</h3>
+        <!-- RIGHT: animated polygon glyph (left) + content (right) -->
+        <div class="outcomes-list">
+          <!-- 01 — 12-sided X (cross) polygon split by a vertical line -->
+          <article class="outcome">
+            <div class="wwd-poly" aria-hidden="true">
+              <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+                <polygon class="poly-fill" points="50,29 32,11 11,32 29,50 11,68 32,89 50,71"/>
+                <polygon class="poly-stroke" pathLength="1" points="68,11 89,32 71,50 89,68 68,89 50,71 32,89 11,68 29,50 11,32 32,11 50,29"/>
+                <line class="poly-stroke" pathLength="1" x1="50" y1="29" x2="50" y2="71"/>
+              </svg>
             </div>
-            <div class="wwd-panel-body">
-              <p class="wwd-lead">We rebuilt every station — research, design, dev, QA — around agents. The result is a small senior team that ships at a pace that didn't exist last year.</p>
-            </div>
-          </div>
-          <!-- div 3 -->
-          <div class="wwd-panel" data-card="1">
-            <div class="wwd-head">
-              <span class="wwd-hno">01</span>
-              <h3 class="wwd-panel-title">Discover</h3>
-            </div>
-            <div class="wwd-panel-body">
+            <div class="outcome-body">
+              <h3 class="outcome-title">Discover</h3>
               <p>Agents synthesize hundreds of interviews, transcripts, and market signals into themes. You get a validated problem in days, not months.</p>
             </div>
-          </div>
-          <!-- div 4 -->
-          <div class="wwd-panel" data-card="2">
-            <div class="wwd-head">
-              <span class="wwd-hno">02</span>
-              <h3 class="wwd-panel-title">Build</h3>
+          </article>
+          <!-- 02 — diamond split into 4 areas -->
+          <article class="outcome">
+            <div class="wwd-poly" aria-hidden="true">
+              <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+                <polygon class="poly-fill" points="50,12 50,50 12,50"/>
+                <polygon class="poly-stroke" pathLength="1" points="50,12 88,50 50,88 12,50"/>
+                <line class="poly-stroke" pathLength="1" x1="50" y1="12" x2="50" y2="88"/>
+                <line class="poly-stroke" pathLength="1" x1="12" y1="50" x2="88" y2="50"/>
+              </svg>
             </div>
-            <div class="wwd-panel-body">
+            <div class="outcome-body">
+              <h3 class="outcome-title">Build</h3>
               <p>Specialist coding agents implement features end-to-end. Senior engineers architect, review, and own production. You get working software in weeks, not quarters.</p>
             </div>
-          </div>
-          <!-- div 5 -->
-          <div class="wwd-panel" data-card="3">
-            <div class="wwd-head">
-              <span class="wwd-hno">03</span>
-              <h3 class="wwd-panel-title">Verify</h3>
+          </article>
+          <!-- 03 — hexagon split into 6 triangles -->
+          <article class="outcome">
+            <div class="wwd-poly" aria-hidden="true">
+              <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+                <polygon class="poly-fill" points="50,50 30,15 70,15"/>
+                <polygon class="poly-stroke" pathLength="1" points="90,50 70,85 30,85 10,50 30,15 70,15"/>
+                <line class="poly-stroke" pathLength="1" x1="50" y1="50" x2="90" y2="50"/>
+                <line class="poly-stroke" pathLength="1" x1="50" y1="50" x2="70" y2="85"/>
+                <line class="poly-stroke" pathLength="1" x1="50" y1="50" x2="30" y2="85"/>
+                <line class="poly-stroke" pathLength="1" x1="50" y1="50" x2="10" y2="50"/>
+                <line class="poly-stroke" pathLength="1" x1="50" y1="50" x2="30" y2="15"/>
+                <line class="poly-stroke" pathLength="1" x1="50" y1="50" x2="70" y2="15"/>
+              </svg>
             </div>
-            <div class="wwd-panel-body">
+            <div class="outcome-body">
+              <h3 class="outcome-title">Verify</h3>
               <p>Visual regression on every PR. AI-generated test suites. Agent-assisted QA. Your launch is the boring kind.</p>
             </div>
-          </div>
+          </article>
         </div>
+
       </div>
     </section>
 
     <!-- ================= SECTION 4 · WHY MAINLINE ================= -->
-    <section class="wwd wwd-mirror" id="why-mainline" aria-label="Why Mainline">
-      <div class="wwd-grid">
+    <!-- one 100vh section: top block (70%) div 1 | div 4; bottom block (30%) the rest -->
+    <section class="method" id="why-mainline" aria-label="Why Mainline">
 
-        <!-- left: scrolling text cells -->
-        <div class="wwd-flow">
-          <div class="wwd-cell wwd-block" data-card="0">
-            <p class="eyebrow">// THE METHODOLOGY</p>
-            <h2 class="wwd-title">Mainline. The line every project ships to.</h2>
-            <p class="wwd-lead">Mainline is what we call our methodology. Borrowed on purpose from trunk-based development — the discipline the best engineering teams already aspire to. We extended it across every station of the factory.</p>
-          </div>
-          <div class="wwd-cell wwd-block" data-card="1">
-            <p class="wwd-lead">One main branch for how Spry works. No long-lived feature branches. No handoffs between disciplines. No "we'll integrate later." Every phase commits its work back to the same line — and the next project starts from where the last one left off. That's the compounding part.</p>
-          </div>
-          <div class="wwd-cell wwd-block" data-card="2">
-            <p class="callout">We ship to one line. The one that matters.</p>
-            <p class="callout">No side branches. No handoffs. No "we'll integrate later."</p>
+      <!-- TOP block (70%) — div 1 (left) | div 4 transparent (right) -->
+      <div class="method-grid method-grid-top">
+        <!-- div 6 — LEFT: div 1 (same design as Outcomes header) -->
+        <div class="method-side">
+          <div class="outcomes-head">
+            <p class="outcomes-kicker">The Methodology</p>
+            <h2 class="outcomes-title">Mainline. The line every project ships to.</h2>
+            <p class="outcomes-sub">Mainline is what we call our methodology. Borrowed on purpose from trunk-based development — the discipline the best engineering teams already aspire to. We extended it across every station of the factory.</p>
           </div>
         </div>
-
-        <!-- right: sticky animation + CTA -->
-        <div class="wwd-sticky">
-          <div class="wwd-anim" id="wwd-anim-2" data-active="0" aria-hidden="true">
-            <!-- 0 the main line with commits -->
-            <div class="wwd-icon" data-i="0"><svg class="wwd-ico" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="50" y1="18" x2="50" y2="82"/><circle cx="50" cy="30" r="6"/><circle cx="50" cy="50" r="6"/><circle cx="50" cy="70" r="6"/>
-            </svg></div>
-            <!-- 1 commits back to the same line -->
-            <div class="wwd-icon" data-i="1"><svg class="wwd-ico" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="38" y1="18" x2="38" y2="82"/><path d="M38 42 C60 42 62 42 62 54 C62 65 60 66 38 66"/><circle cx="62" cy="54" r="5"/>
-            </svg></div>
-            <!-- 2 ship to one line -->
-            <div class="wwd-icon" data-i="2"><svg class="wwd-ico" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="50" y1="18" x2="50" y2="74"/><path d="M40 64 L50 78 L60 64"/>
-            </svg></div>
+        <!-- div 7 — RIGHT: div 4, transparent -->
+        <div class="method-side method-side-right">
+          <div class="method-void" aria-hidden="true">
+            <canvas class="method-wave" id="method-wave"></canvas>
           </div>
-          <a href="#phases" class="wwd-cta">Read about Mainline →</a>
         </div>
       </div>
+
+      <!-- BOTTOM block (30%) — div 2 (left) | split A + B + div 5 (right) -->
+      <div class="method-grid method-grid-bottom">
+        <!-- LEFT: div 2 — no heading -->
+        <div class="method-side">
+          <div class="method-card method-plain">
+            <div class="wwd-panel-body">
+              <p>One main branch for how Spry works. No long-lived feature branches. No handoffs between disciplines. No "we'll integrate later." Every phase commits its work back to the same line — and the next project starts from where the last one left off. That's the compounding part.</p>
+            </div>
+          </div>
+        </div>
+        <!-- RIGHT: split A + B on top, div 5 orange bar at bottom -->
+        <div class="method-side method-side-right">
+          <!-- split A -->
+          <div class="method-card method-plain">
+            <div class="wwd-panel-body">
+              <p>We ship to one line. The one that matters.</p>
+            </div>
+          </div>
+          <!-- split B -->
+          <div class="method-card method-plain">
+            <div class="wwd-panel-body">
+              <p>No side branches. No handoffs. No "we'll integrate later."</p>
+            </div>
+          </div>
+          <!-- div 5 — single orange bar, link only -->
+          <a href="#phases" class="method-cta-bar">Read about Mainline →</a>
+        </div>
+      </div>
+
     </section>
 
     <!-- ================= SECTION 5 · THE PHASES ================= -->
-    <section class="section" id="phases">
-      <div class="container">
-        <header class="section-head">
-          <p class="eyebrow">// HOW WE BUILD</p>
-          <h2 class="section-title">Nine phases. One main line.</h2>
-          <p class="section-sub">
-            From the first signal to the verified release — agent-orchestrated,
-            human-accountable, end to end. No mystery.
-          </p>
-        </header>
+    <section class="phases" id="phases">
+      <div class="phases-grid">
 
-        <ol class="phase-list" id="phase-list">
-          <li class="phase"><span class="phase-num">01</span><span class="phase-name">Signal</span><span class="phase-desc">Interviews, transcripts & market data in.</span></li>
-          <li class="phase"><span class="phase-num">02</span><span class="phase-name">Discover</span><span class="phase-desc">Themes synthesized. Problem validated.</span></li>
-          <li class="phase"><span class="phase-num">03</span><span class="phase-name">Frame</span><span class="phase-desc">Scope, constraints & success defined.</span></li>
-          <li class="phase"><span class="phase-num">04</span><span class="phase-name">Design</span><span class="phase-desc">Flows and interface, agent-accelerated.</span></li>
-          <li class="phase"><span class="phase-num">05</span><span class="phase-name">Architect</span><span class="phase-desc">Senior engineers set the foundation.</span></li>
-          <li class="phase"><span class="phase-num">06</span><span class="phase-name">Build</span><span class="phase-desc">Specialist agents implement end-to-end.</span></li>
-          <li class="phase"><span class="phase-num">07</span><span class="phase-name">Review</span><span class="phase-desc">Humans own every merge to main.</span></li>
-          <li class="phase"><span class="phase-num">08</span><span class="phase-name">Verify</span><span class="phase-desc">Visual regression + AI test suites.</span></li>
-          <li class="phase"><span class="phase-num">09</span><span class="phase-name">Release</span><span class="phase-desc">The boring kind of launch.</span></li>
-        </ol>
+        <!-- div 1 — LEFT: header + 9 phase rows (same design as Outcomes) -->
+        <div class="phases-main">
+
+          <div class="outcomes-head">
+            <p class="outcomes-kicker">How we build</p>
+            <h2 class="outcomes-title">Nine phases. One main line.</h2>
+            <p class="outcomes-sub">From the first signal to the verified release — agent-orchestrated, human-accountable, end to end. No mystery.</p>
+          </div>
+
+          <div class="outcomes-list">
+            <article class="outcome">
+              <div class="outcome-body">
+                <h3 class="outcome-title">Signal</h3>
+                <p>Interviews, transcripts & market data in.</p>
+              </div>
+              <div class="outcome-tag">01</div>
+            </article>
+            <article class="outcome">
+              <div class="outcome-body">
+                <h3 class="outcome-title">Discover</h3>
+                <p>Themes synthesized. Problem validated.</p>
+              </div>
+              <div class="outcome-tag">02</div>
+            </article>
+            <article class="outcome">
+              <div class="outcome-body">
+                <h3 class="outcome-title">Frame</h3>
+                <p>Scope, constraints & success defined.</p>
+              </div>
+              <div class="outcome-tag">03</div>
+            </article>
+            <article class="outcome">
+              <div class="outcome-body">
+                <h3 class="outcome-title">Design</h3>
+                <p>Flows and interface, agent-accelerated.</p>
+              </div>
+              <div class="outcome-tag">04</div>
+            </article>
+            <article class="outcome">
+              <div class="outcome-body">
+                <h3 class="outcome-title">Architect</h3>
+                <p>Senior engineers set the foundation.</p>
+              </div>
+              <div class="outcome-tag">05</div>
+            </article>
+            <article class="outcome">
+              <div class="outcome-body">
+                <h3 class="outcome-title">Build</h3>
+                <p>Specialist agents implement end-to-end.</p>
+              </div>
+              <div class="outcome-tag">06</div>
+            </article>
+            <article class="outcome">
+              <div class="outcome-body">
+                <h3 class="outcome-title">Review</h3>
+                <p>Humans own every merge to main.</p>
+              </div>
+              <div class="outcome-tag">07</div>
+            </article>
+            <article class="outcome">
+              <div class="outcome-body">
+                <h3 class="outcome-title">Verify</h3>
+                <p>Visual regression + AI test suites.</p>
+              </div>
+              <div class="outcome-tag">08</div>
+            </article>
+            <article class="outcome">
+              <div class="outcome-body">
+                <h3 class="outcome-title">Release</h3>
+                <p>The boring kind of launch.</p>
+              </div>
+              <div class="outcome-tag">09</div>
+            </article>
+          </div>
+
+        </div>
+
+        <!-- div 2 — RIGHT: sticky 9-vertex polygon that lights up as phases scroll past -->
+        <div class="phases-void" aria-hidden="true">
+          <canvas class="phases-canvas" id="phases-polygon"></canvas>
+        </div>
+
       </div>
     </section>
 
     <!-- ================= SECTION 6 · OUTCOMES ================= -->
-    <section class="section section-invert" id="outcomes">
-      <div class="container">
-        <header class="section-head">
-          <p class="eyebrow">// OUTCOMES</p>
-          <h2 class="section-title">What changes when you ship to Mainline.</h2>
-          <p class="section-sub">Three things, every project.</p>
-        </header>
+    <section class="outcomes" id="outcomes" aria-label="Outcomes">
+      <div class="outcomes-grid">
 
-        <div class="cols-3">
-          <article class="stat">
-            <span class="stat-no">01</span>
-            <h3 class="stat-title">Weeks, not quarters.</h3>
-            <p>From signal to shipped software in a fraction of the old timeline.</p>
+        <!-- LEFT: bold kicker + big hero-style title -->
+        <div class="outcomes-head">
+          <p class="outcomes-kicker">Outcomes</p>
+          <h2 class="outcomes-title">What changes when you ship to Mainline.</h2>
+          <p class="outcomes-sub">Three things, every project.</p>
+        </div>
+
+        <!-- RIGHT: three divs — far-left "NN / WORD" label + content -->
+        <div class="outcomes-list">
+          <article class="outcome">
+            <div class="outcome-tag">01 / SPEED</div>
+            <div class="outcome-body">
+              <h3 class="outcome-title">Weeks, not quarters.</h3>
+              <p>From signal to shipped software in a fraction of the old timeline.</p>
+            </div>
           </article>
-          <article class="stat">
-            <span class="stat-no">02</span>
-            <h3 class="stat-title">One senior team. End to end.</h3>
-            <p>The same people see your product from Discover to Verify. No handoffs. No telephone game.</p>
+          <article class="outcome">
+            <div class="outcome-tag">02 / CONTINUITY</div>
+            <div class="outcome-body">
+              <h3 class="outcome-title">One senior team. End to end.</h3>
+              <p>The same people see your product from Discover to Verify. No handoffs. No telephone game.</p>
+            </div>
           </article>
-          <article class="stat">
-            <span class="stat-no">03</span>
-            <h3 class="stat-title">Automated status.</h3>
-            <p>Standups, reports, and blocker tracking are automated. Your time goes to decisions.</p>
+          <article class="outcome">
+            <div class="outcome-tag">03 / VISIBILITY</div>
+            <div class="outcome-body">
+              <h3 class="outcome-title">Automated status.</h3>
+              <p>Standups, reports, and blocker tracking are automated. Your time goes to decisions.</p>
+            </div>
           </article>
         </div>
+
       </div>
     </section>
 
