@@ -22,15 +22,16 @@
   <!-- ================= FIXED PULSE BACKGROUND ================= -->
   <div class="rings" id="rings" aria-hidden="true">
     <svg class="rings-svg" viewBox="-500 -500 1000 1000" preserveAspectRatio="xMidYMid meet">
-      <!-- concentric FILLED discs: outer painted first, each smaller disc stacks
-           on top so overlap darkens toward the center (largest -> smallest) -->
-      <circle class="pulse-ring" cx="0" cy="0" r="430" fill="#F63822" fill-opacity="0.22"/>
-      <circle class="pulse-ring" cx="0" cy="0" r="370" fill="#F63822" fill-opacity="0.22"/>
-      <circle class="pulse-ring" cx="0" cy="0" r="310" fill="#F63822" fill-opacity="0.22"/>
-      <circle class="pulse-ring" cx="0" cy="0" r="250" fill="#F63822" fill-opacity="0.22"/>
-      <circle class="pulse-ring" cx="0" cy="0" r="190" fill="#F63822" fill-opacity="0.22"/>
-      <circle class="pulse-ring" cx="0" cy="0" r="130" fill="#F63822" fill-opacity="0.22"/>
-      <circle class="pulse-ring" cx="0" cy="0" r="70"  fill="#F63822" fill-opacity="0.22"/>
+      <!-- concentric thin light rings + one solid orange center circle.
+           Each ring is wrapped in a <g> that drifts toward the cursor. -->
+      <g class="ring-follow"><circle class="pulse-ring" cx="0" cy="0" r="430" fill="none" stroke="#D2CBBF" stroke-width="2"   stroke-opacity="0.30"/></g>
+      <g class="ring-follow"><circle class="pulse-ring" cx="0" cy="0" r="370" fill="none" stroke="#D2CBBF" stroke-width="2.5" stroke-opacity="0.42"/></g>
+      <g class="ring-follow"><circle class="pulse-ring" cx="0" cy="0" r="310" fill="none" stroke="#D2CBBF" stroke-width="2.5" stroke-opacity="0.50"/></g>
+      <g class="ring-follow"><circle class="pulse-ring" cx="0" cy="0" r="250" fill="none" stroke="#D2CBBF" stroke-width="2.5" stroke-opacity="0.55"/></g>
+      <g class="ring-follow"><circle class="pulse-ring" cx="0" cy="0" r="190" fill="none" stroke="#D2CBBF" stroke-width="2.5" stroke-opacity="0.50"/></g>
+      <g class="ring-follow"><circle class="pulse-ring" cx="0" cy="0" r="130" fill="none" stroke="#D2CBBF" stroke-width="2.5" stroke-opacity="0.42"/></g>
+      <!-- small center circle: solid orange -->
+      <g class="ring-follow"><circle class="pulse-ring" cx="0" cy="0" r="70"  fill="#ff3d00" fill-opacity="0.92" stroke="none"/></g>
     </svg>
   </div>
 
@@ -142,20 +143,31 @@
     <!-- one 100vh section: top block (70%) div 1 | div 4; bottom block (30%) the rest -->
     <section class="method" id="why-mainline" aria-label="Why Mainline">
 
-      <!-- TOP block (70%) — div 1 (left) | div 4 transparent (right) -->
+      <!-- TOP block (70%) — LEFT: wave reveal | RIGHT: methodology text -->
       <div class="method-grid method-grid-top">
-        <!-- div 6 — LEFT: div 1 (same design as Outcomes header) -->
+        <!-- LEFT: wave, revealed diagonally by clip-path as you scroll -->
         <div class="method-side">
+          <div class="method-void" aria-hidden="true">
+            <div class="method-reveal" id="method-reveal">
+              <!-- the revealed element (clip-path inset opens toward bottom-right) -->
+              <div class="mr-panel">
+                <canvas class="method-wave" id="method-wave"></canvas>
+              </div>
+              <!-- frame guide lines: static top + left, moving right + bottom -->
+              <span class="mr-axis mr-axis-top"></span>
+              <span class="mr-axis mr-axis-left"></span>
+              <span class="mr-axis mr-axis-y"></span>
+              <span class="mr-axis mr-axis-x"></span>
+              <span class="mr-corner"></span>
+            </div>
+          </div>
+        </div>
+        <!-- RIGHT: methodology text -->
+        <div class="method-side method-side-right">
           <div class="outcomes-head">
             <p class="outcomes-kicker">The Methodology</p>
             <h2 class="outcomes-title">Mainline. The line every project ships to.</h2>
             <p class="outcomes-sub">Mainline is what we call our methodology. Borrowed on purpose from trunk-based development — the discipline the best engineering teams already aspire to. We extended it across every station of the factory.</p>
-          </div>
-        </div>
-        <!-- div 7 — RIGHT: div 4, transparent -->
-        <div class="method-side method-side-right">
-          <div class="method-void" aria-hidden="true">
-            <canvas class="method-wave" id="method-wave"></canvas>
           </div>
         </div>
       </div>

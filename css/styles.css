@@ -752,6 +752,11 @@ h3 {
 }
 .outcome p { font-size: var(--text-base); font-weight: 300; }
 
+/* section 2 — solid stone background so the fixed hero rings don't show
+   through (e.g. behind an item as it pops out) */
+#what-we-do { background: var(--color-paper); }
+#what-we-do .outcomes-head { background: transparent; }
+
 /* section 2 — animated polygon glyph on the left, content on the right */
 #what-we-do .outcome { grid-template-columns: auto 1fr; }
 .wwd-poly {
@@ -781,11 +786,32 @@ h3 {
 }
 @keyframes poly-blink {
   0%, 33%  { fill: transparent; }
-  39%      { fill: var(--color-ink); }
+  39%      { fill: currentColor; }   /* follows .wwd-poly color (flips light on hover) */
   45%      { fill: transparent; }
-  51%      { fill: var(--color-ink); }
+  51%      { fill: currentColor; }
   57%, 100%{ fill: transparent; }
 }
+
+/* hover: div flips to black, content flips light, and pops toward the top-right */
+#what-we-do .outcome {
+  position: relative;
+  background: transparent;   /* let the orange section show through */
+  transition: background 0.18s ease, box-shadow 0.18s ease; /* transform enabled after intro */
+}
+/* .pop is added once the entrance animation finishes, so the hover pop transitions
+   smoothly without fighting the JS-driven slide-in */
+#what-we-do .outcome.pop {
+  transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+}
+#what-we-do .outcome:hover {
+  background: var(--color-ink);
+  transform: translate(6px, -6px) !important;   /* pop up + right (beats the inline slide transform) */
+  box-shadow: -6px 6px 0 rgba(10, 10, 10, 0.22);
+  z-index: 2;
+}
+#what-we-do .outcome:hover .outcome-title,
+#what-we-do .outcome:hover .outcome-body p { color: var(--color-paper); }
+#what-we-do .outcome:hover .wwd-poly { color: var(--color-paper); }
 
 /* =========================================================
    10. SECTION 4 · WHY MAINLINE
@@ -819,8 +845,8 @@ h3 {
   display: flex;
   flex-direction: column;
 }
-/* div 4 (transparent spacer) fills the space above the CTA bar in div 7 */
-.method-side-right > .method-void { flex: 1; }
+/* the reveal/void fills its column (either side) */
+.method-side > .method-void { flex: 1; }
 
 /* section-3 cards — same panel look as section 2 (deactivated heading bar +
    stone body). No shadow, no borders — the #6e675b heading bars separate them */
@@ -834,6 +860,60 @@ h3 {
   height: 100%;
   display: block;
   z-index: 1; /* above the dotted mesh (::before) */
+}
+
+/* clip-path reveal (enerblock-style): the panel opens toward the bottom-right
+   while X/Y guide lines + a corner marker track the opening vertex */
+.method-reveal { position: absolute; inset: 0; }
+.mr-panel {
+  position: absolute;
+  inset: 0;
+  /* closed: a tiny box pinned at the top-left */
+  clip-path: inset(1.25rem calc(100% - 1.25rem) calc(100% - 1.25rem) 1.25rem);
+  transition: clip-path 1.15s cubic-bezier(0.66, 0, 0.2, 1);
+}
+.method-reveal.in .mr-panel {
+  /* open: 20px top/left, 60px right/bottom */
+  clip-path: inset(1.25rem 60px 60px 1.25rem);
+}
+
+/* guide lines — pinned to the panel's right (vertical) and bottom (horizontal) edges */
+.mr-axis {
+  position: absolute;
+  background: var(--color-ink);
+  opacity: 0;
+  z-index: 3;
+  transition: opacity 0.4s ease,
+              right 1.15s cubic-bezier(0.66, 0, 0.2, 1),
+              bottom 1.15s cubic-bezier(0.66, 0, 0.2, 1);
+}
+.mr-axis-top  { left: 0; right: 0; height: 1px; top: 1.25rem; }               /* horizontal, fixed top edge */
+.mr-axis-left { top: 0; bottom: 0; width: 1px; left: 1.25rem; }               /* vertical, fixed left edge */
+.mr-axis-y { top: 0; bottom: 0; width: 1px; right: calc(100% - 1.25rem); }    /* vertical, moving right edge */
+.mr-axis-x { left: 0; right: 0; height: 1px; bottom: calc(100% - 1.25rem); }  /* horizontal, moving bottom edge */
+.method-reveal.in .mr-axis   { opacity: 0.5; }
+.method-reveal.in .mr-axis-y { right: 60px; }
+.method-reveal.in .mr-axis-x { bottom: 60px; }
+
+/* marker at the tracked corner */
+.mr-corner {
+  position: absolute;
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  right: calc(100% - 1.25rem);
+  bottom: calc(100% - 1.25rem);
+  transform: translate(50%, 50%);
+  opacity: 0;
+  z-index: 4;
+  transition: opacity 0.4s ease,
+              right 1.15s cubic-bezier(0.66, 0, 0.2, 1),
+              bottom 1.15s cubic-bezier(0.66, 0, 0.2, 1);
+}
+.method-reveal.in .mr-corner {
+  opacity: 1;
+  right: 60px;
+  bottom: 60px;
 }
 
 .method-card .wwd-panel-body {
@@ -1014,5 +1094,6 @@ h3 {
   .wwd-icon { transition: none; }
   .poly-stroke { animation: none; stroke-dashoffset: 0; }  /* draw fully, no loop */
   .poly-fill { animation: none; fill: transparent; }
+  .mr-panel, .mr-axis, .mr-corner { transition: none; }   /* reveal shown open instantly */
   html { scroll-behavior: auto; }
 }

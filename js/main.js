@@ -52,30 +52,41 @@ function initPulseBackground() {
   });
 }
 
-// Tilt the disc field toward the cursor. createAnimatable eases each axis
-// smoothly toward the latest target instead of snapping on every mousemove.
-function initCursorTilt() {
-  if (prefersReducedMotion || !ringsSvg) return;
+// Concentric rings follow the cursor: each ring drifts toward the pointer,
+// inner rings farther than outer ones — but each step stays under the gap to the
+// next ring, so a ring never crosses (trespasses) its neighbour's edge.
+function initRingsFollow() {
+  if (prefersReducedMotion) return;
   if (window.matchMedia('(pointer: coarse)').matches) return; // skip touch devices
 
-  const tilt = createAnimatable(ringsSvg, {
-    rotateX: 700,
-    rotateY: 700,
-    ease: 'out(3)',
-  });
+  const groups = Array.from(document.querySelectorAll('.ring-follow'));
+  if (!groups.length) return;
+
+  const radii = groups.map((g) => parseFloat(g.querySelector('circle').getAttribute('r')));
+  const K = 0.5; // fraction of each gap a ring may drift relative to its outer neighbour
+  const maxOff = radii.map(() => 0);
+  for (let i = 1; i < groups.length; i++) {
+    const gap = radii[i - 1] - radii[i];        // outer neighbour is the previous (larger) ring
+    maxOff[i] = maxOff[i - 1] + K * gap;         // accumulate → inner rings travel more
+  }
+
+  let tx = 0, ty = 0, cx = 0, cy = 0, raf = 0;
+  const apply = () => {
+    cx += (tx - cx) * 0.08;
+    cy += (ty - cy) * 0.08;
+    groups.forEach((g, i) => {
+      g.setAttribute('transform', `translate(${(cx * maxOff[i]).toFixed(2)} ${(cy * maxOff[i]).toFixed(2)})`);
+    });
+    raf = Math.abs(tx - cx) + Math.abs(ty - cy) > 0.0005 ? requestAnimationFrame(apply) : 0;
+  };
+  const kick = () => { if (!raf) raf = requestAnimationFrame(apply); };
 
   window.addEventListener('mousemove', (e) => {
-    const dx = (e.clientX / window.innerWidth) * 2 - 1;  // -1 .. 1
-    const dy = (e.clientY / window.innerHeight) * 2 - 1; // -1 .. 1
-    tilt.rotateY(dx * MAX_TILT);
-    tilt.rotateX(-dy * MAX_TILT);
+    tx = (e.clientX / window.innerWidth) * 2 - 1;   // -1 .. 1
+    ty = (e.clientY / window.innerHeight) * 2 - 1;
+    kick();
   });
-
-  // ease back to flat when the cursor leaves the window
-  window.addEventListener('mouseleave', () => {
-    tilt.rotateX(0);
-    tilt.rotateY(0);
-  });
+  window.addEventListener('mouseleave', () => { tx = 0; ty = 0; kick(); });
 }
 
 // Stacking panels (What we do): the active panel is the last one whose header
@@ -370,15 +381,180 @@ function initMethodWave() {
   raf = requestAnimationFrame(loop);
 }
 
+// "What we do": title reveals letter-by-letter and the Discover/Build/Verify
+// divs slide in from the left in order, once the section enters the viewport.
+function initWhatWeDoIntro() {
+  const section = document.getElementById('what-we-do');
+  if (!section) return;
+  const para = section.querySelector('.outcomes-sub');   // the paragraph below the title
+  const items = Array.from(section.querySelectorAll('.outcome'));
+
+  // split the paragraph into per-letter spans (skip entirely for reduced motion)
+  const letters = [];
+  if (para && !prefersReducedMotion) {
+    const text = para.textContent;
+    para.textContent = '';
+    for (const ch of text) {
+      const s = document.createElement('span');
+      s.textContent = ch;
+      s.style.display = 'inline-block';
+      s.style.whiteSpace = 'pre';   // preserve spaces + allow word wrapping
+      s.style.opacity = '0';
+      para.appendChild(s);
+      letters.push(s);
+    }
+  }
+
+  if (prefersReducedMotion) return; // leave title + items visible, no motion
+
+  items.forEach((it) => { it.style.opacity = '0'; });
+
+  let done = false;
+  const run = () => {
+    if (done) return;
+    done = true;
+
+    if (letters.length) {
+      animate(letters, {
+        opacity: [0, 1],
+        duration: 320,
+        delay: stagger(12),   // snappy per-letter reveal for the long paragraph
+        ease: 'out(2)',
+      });
+    }
+    if (items.length) {
+      animate(items, {
+        opacity: [0, 1],
+        translateX: [-60, 0],   // slide in from the left
+        duration: 600,
+        delay: stagger(160),    // Discover first, then Build, then Verify
+        ease: 'out(3)',
+      });
+      // enable the hover-pop transition once the entrance is finished
+      setTimeout(() => items.forEach((it) => it.classList.add('pop')),
+        600 + 160 * items.length + 80);
+    }
+  };
+
+  if ('IntersectionObserver' in window) {
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach((e) => { if (e.isIntersecting) { run(); obs.disconnect(); } });
+    }, { threshold: 0.25 });
+    obs.observe(section);
+  } else {
+    run();
+  }
+}
+
+// Clip-path reveal in the methodology right div, scrubbed by scroll: the panel
+// opens (and the X/Y guide lines + corner marker track the opening vertex) as the
+// element scrolls into view, and closes again as you scroll back up.
+function initMethodReveal() {
+  const reveal = document.getElementById('method-reveal');
+  if (!reveal) return;
+  const panel = reveal.querySelector('.mr-panel');
+  const axisY = reveal.querySelector('.mr-axis-y');
+  const axisX = reveal.querySelector('.mr-axis-x');
+  const axisTop = reveal.querySelector('.mr-axis-top');
+  const axisLeft = reveal.querySelector('.mr-axis-left');
+  const corner = reveal.querySelector('.mr-corner');
+
+  // scroll position drives everything directly — no CSS transitions
+  [panel, axisY, axisX, axisTop, axisLeft, corner].forEach((el) => { if (el) el.style.transition = 'none'; });
+
+  const rootFont = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const clamp = (v) => Math.min(1, Math.max(0, v));
+
+  const apply = () => {
+    const W = reveal.clientWidth, H = reveal.clientHeight;
+    if (!W || !H) return;
+    const pad = 1.25 * rootFont;              // top + left inset (20px)
+    const openR = 60;                         // right inset when open → 60px
+    const openB = 60;                         // bottom inset when open → 60px
+    const closedR = W - pad;                  // calc(100% - 1.25rem)
+    const closedB = H - pad;
+
+    let p;
+    if (prefersReducedMotion) {
+      p = 1;
+    } else {
+      const vh = window.innerHeight;
+      const top = reveal.getBoundingClientRect().top;
+      const start = vh * 1.0, end = vh * 0.25; // wider range → slower, clearer diagonal
+      p = clamp((start - top) / (start - end));
+    }
+
+    const r = lerp(closedR, openR, p);
+    const b = lerp(closedB, openB, p);
+    if (panel)  panel.style.clipPath = `inset(${pad}px ${r}px ${b}px ${pad}px)`;
+    if (axisY)  { axisY.style.right = `${r}px`;  axisY.style.opacity = String(0.5 * p); }
+    if (axisX)  { axisX.style.bottom = `${b}px`; axisX.style.opacity = String(0.5 * p); }
+    if (axisTop)  axisTop.style.opacity = String(0.5 * p);   // fixed top edge, fades in
+    if (axisLeft) axisLeft.style.opacity = String(0.5 * p);  // fixed left edge, fades in
+    if (corner) { corner.style.right = `${r}px`; corner.style.bottom = `${b}px`; corner.style.opacity = String(p); }
+  };
+
+  if (prefersReducedMotion) { apply(); return; }
+
+  let ticking = false;
+  const onScroll = () => {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => { apply(); ticking = false; });
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', apply);
+  apply();
+}
+
+// Methodology paragraph reveals letter-by-letter when it scrolls into view.
+function initMethodText() {
+  const para = document.querySelector('#why-mainline .outcomes-sub');
+  if (!para || prefersReducedMotion) return;
+
+  const text = para.textContent;
+  para.textContent = '';
+  const letters = [];
+  for (const ch of text) {
+    const s = document.createElement('span');
+    s.textContent = ch;
+    s.style.display = 'inline-block';
+    s.style.whiteSpace = 'pre';
+    s.style.opacity = '0';
+    para.appendChild(s);
+    letters.push(s);
+  }
+
+  let done = false;
+  const run = () => {
+    if (done) return;
+    done = true;
+    animate(letters, { opacity: [0, 1], duration: 320, delay: stagger(12), ease: 'out(2)' });
+  };
+
+  if ('IntersectionObserver' in window) {
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach((e) => { if (e.isIntersecting) { run(); obs.disconnect(); } });
+    }, { threshold: 0.4 });
+    obs.observe(para);
+  } else {
+    run();
+  }
+}
+
 // --- Init ---
 function init() {
   initPhaseReveal();
   initPulseBackground();
-  initCursorTilt();
+  initRingsFollow();
   initWwdAnim();
   initWwdMesh();
   initWwdIcons();
   initMethodWave();
+  initWhatWeDoIntro();
+  initMethodReveal();
+  initMethodText();
 }
 
 document.addEventListener('DOMContentLoaded', init);
