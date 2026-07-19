@@ -9,6 +9,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;600;700;800;900&family=JetBrains+Mono:wght@200;300;400;700;800&family=Space+Mono:wght@400;700&display=swap">
   <link rel="stylesheet" href="css/styles.css">
+  <script type="importmap">
+  { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
+  </script>
 </head>
 <body>
 
@@ -269,9 +272,9 @@
 
         </div>
 
-        <!-- div 2 — RIGHT: sticky 9-vertex polygon that lights up as phases scroll past -->
+        <!-- div 2 — RIGHT: sticky morphing polyhedron (anomalous matter) -->
         <div class="phases-void" aria-hidden="true">
-          <canvas class="phases-canvas" id="phases-polygon"></canvas>
+          <div class="phases-anim" id="phases-anim"></div>
         </div>
 
       </div>
@@ -344,5 +347,17 @@
   </footer>
 
   <script type="module" src="js/main.js"></script>
+  <script type="module">
+    import { initAnomalousMatter } from "./js/anomalous-matter.js";
+    const mount = document.getElementById("phases-anim");
+    if (mount) {
+      initAnomalousMatter(mount, {
+        color: "#ff3d00",     // signal orange on the dark panel
+        scale: 0.9,           // smaller mesh
+        turns: 1.15,          // rotations across the full scroll
+        fillOpacity: 0.5,     // how strongly each face lights when filled
+      });
+    }
+  </script>
 </body>
 </html>

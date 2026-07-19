@@ -908,8 +908,8 @@ h3 {
 }
 .phases-main {}                 /* cards stack full-bleed, no padding */
 .phases-void { background: var(--color-ink); display: none; position: relative; }  /* filled right column */
-/* sticky polygon: stays pinned while the left phase list scrolls past */
-.phases-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+/* sticky morphing polyhedron: stays pinned while the left phase list scrolls past */
+.phases-anim { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 
 /* =========================================================
    12. SECTION 7 · CLOSING CTA
