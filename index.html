@@ -142,9 +142,15 @@
     <!-- one 100vh section: top block (70%) div 1 | div 4; bottom block (30%) the rest -->
     <section class="method" id="why-mainline" aria-label="Why Mainline">
 
-      <!-- TOP block (70%) — div 1 (left) | div 4 transparent (right) -->
+      <!-- TOP block (70%) — animation (left) | header content (right) -->
       <div class="method-grid method-grid-top">
-        <!-- div 6 — LEFT: div 1 (same design as Outcomes header) -->
+        <!-- LEFT: the wave animation -->
+        <div class="method-side method-side-right">
+          <div class="method-void" aria-hidden="true">
+            <canvas class="method-wave" id="method-wave"></canvas>
+          </div>
+        </div>
+        <!-- RIGHT: header (same design as Outcomes header) -->
         <div class="method-side">
           <div class="outcomes-head">
             <p class="outcomes-kicker">The Methodology</p>
@@ -152,35 +158,45 @@
             <p class="outcomes-sub">Mainline is what we call our methodology. Borrowed on purpose from trunk-based development — the discipline the best engineering teams already aspire to. We extended it across every station of the factory.</p>
           </div>
         </div>
-        <!-- div 7 — RIGHT: div 4, transparent -->
-        <div class="method-side method-side-right">
-          <div class="method-void" aria-hidden="true">
-            <canvas class="method-wave" id="method-wave"></canvas>
-          </div>
-        </div>
       </div>
 
       <!-- BOTTOM block (30%) — div 2 (left) | split A + B + div 5 (right) -->
       <div class="method-grid method-grid-bottom">
-        <!-- LEFT: div 2 — no heading -->
+        <!-- LEFT: div 2 -->
         <div class="method-side">
           <div class="method-card method-plain">
             <div class="wwd-panel-body">
+              <h3 class="method-card-title">About mainline</h3>
               <p>One main branch for how Spry works. No long-lived feature branches. No handoffs between disciplines. No "we'll integrate later." Every phase commits its work back to the same line — and the next project starts from where the last one left off. That's the compounding part.</p>
             </div>
           </div>
         </div>
         <!-- RIGHT: split A + B on top, div 5 orange bar at bottom -->
         <div class="method-side method-side-right">
-          <!-- split A -->
+          <!-- split A — circle split in two, one half blinks -->
           <div class="method-card method-plain">
-            <div class="wwd-panel-body">
+            <div class="wwd-panel-body method-item">
+              <div class="wwd-poly" aria-hidden="true">
+                <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+                  <path class="poly-fill" d="M50 12 A38 38 0 0 1 50 88 Z"/>
+                  <circle class="poly-stroke" pathLength="1" cx="50" cy="50" r="38"/>
+                  <line class="poly-stroke" pathLength="1" x1="50" y1="12" x2="50" y2="88"/>
+                </svg>
+              </div>
               <p>We ship to one line. The one that matters.</p>
             </div>
           </div>
-          <!-- split B -->
+          <!-- split B — diamond split in four, one quarter blinks -->
           <div class="method-card method-plain">
-            <div class="wwd-panel-body">
+            <div class="wwd-panel-body method-item">
+              <div class="wwd-poly" aria-hidden="true">
+                <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon class="poly-fill" points="50,50 50,10 90,50"/>
+                  <polygon class="poly-stroke" pathLength="1" points="50,10 90,50 50,90 10,50"/>
+                  <line class="poly-stroke" pathLength="1" x1="50" y1="10" x2="50" y2="90"/>
+                  <line class="poly-stroke" pathLength="1" x1="10" y1="50" x2="90" y2="50"/>
+                </svg>
+              </div>
               <p>No side branches. No handoffs. No "we'll integrate later."</p>
             </div>
           </div>
@@ -204,77 +220,11 @@
             <p class="outcomes-sub">From the first signal to the verified release — agent-orchestrated, human-accountable, end to end. No mystery.</p>
           </div>
 
-          <div class="outcomes-list">
-            <article class="outcome">
-              <div class="outcome-body">
-                <h3 class="outcome-title">Signal</h3>
-                <p>Interviews, transcripts & market data in.</p>
-              </div>
-              <div class="outcome-tag">01</div>
-            </article>
-            <article class="outcome">
-              <div class="outcome-body">
-                <h3 class="outcome-title">Discover</h3>
-                <p>Themes synthesized. Problem validated.</p>
-              </div>
-              <div class="outcome-tag">02</div>
-            </article>
-            <article class="outcome">
-              <div class="outcome-body">
-                <h3 class="outcome-title">Frame</h3>
-                <p>Scope, constraints & success defined.</p>
-              </div>
-              <div class="outcome-tag">03</div>
-            </article>
-            <article class="outcome">
-              <div class="outcome-body">
-                <h3 class="outcome-title">Design</h3>
-                <p>Flows and interface, agent-accelerated.</p>
-              </div>
-              <div class="outcome-tag">04</div>
-            </article>
-            <article class="outcome">
-              <div class="outcome-body">
-                <h3 class="outcome-title">Architect</h3>
-                <p>Senior engineers set the foundation.</p>
-              </div>
-              <div class="outcome-tag">05</div>
-            </article>
-            <article class="outcome">
-              <div class="outcome-body">
-                <h3 class="outcome-title">Build</h3>
-                <p>Specialist agents implement end-to-end.</p>
-              </div>
-              <div class="outcome-tag">06</div>
-            </article>
-            <article class="outcome">
-              <div class="outcome-body">
-                <h3 class="outcome-title">Review</h3>
-                <p>Humans own every merge to main.</p>
-              </div>
-              <div class="outcome-tag">07</div>
-            </article>
-            <article class="outcome">
-              <div class="outcome-body">
-                <h3 class="outcome-title">Verify</h3>
-                <p>Visual regression + AI test suites.</p>
-              </div>
-              <div class="outcome-tag">08</div>
-            </article>
-            <article class="outcome">
-              <div class="outcome-body">
-                <h3 class="outcome-title">Release</h3>
-                <p>The boring kind of launch.</p>
-              </div>
-              <div class="outcome-tag">09</div>
-            </article>
-          </div>
-
         </div>
 
-        <!-- div 2 — RIGHT: sticky morphing polyhedron (anomalous matter) -->
-        <div class="phases-void" aria-hidden="true">
-          <div class="phases-anim" id="phases-anim"></div>
+        <!-- div 2 — RIGHT: isometric 3×3 grid; each tile pops into a bar on hover -->
+        <div class="phases-void">
+          <div class="iso-grid" id="iso-grid"></div>
         </div>
 
       </div>
@@ -321,17 +271,39 @@
 
     <!-- ================= SECTION 7 · CLOSING CTA ================= -->
     <section class="closing" id="contact">
-      <div class="container">
-        <p class="eyebrow">// YOUR TURN</p>
-        <h2 class="closing-title">Got an idea?<br>Let's get it on Mainline.</h2>
-        <p class="closing-sub">
-          Tell us a bit about your project. We'll come back within two business days —
-          with thoughts, questions, and a clear next step. No sales deck.
-        </p>
-        <div class="cta-row">
-          <a href="mailto:hello@spryelephant.com?subject=Start%20a%20project" class="btn btn-primary">Start a conversation</a>
-          <a href="mailto:hello@spryelephant.com" class="btn btn-ghost">hello@spryelephant.com</a>
+      <div class="outcomes-grid">
+
+        <!-- LEFT: three stacked divs — content, then each CTA link in its own div -->
+        <div class="closing-left">
+          <div class="closing-content">
+            <p class="outcomes-kicker">YOUR TURN</p>
+            <h2 class="outcomes-title">Got an idea?<br>Let's get it on Mainline.</h2>
+            <p class="outcomes-sub">
+              Tell us a bit about your project. We'll come back within two business days —
+              with thoughts, questions, and a clear next step. No sales deck.
+            </p>
+          </div>
+          <div class="closing-link closing-link--primary">
+            <a href="mailto:hello@spryelephant.com?subject=Start%20a%20project" class="method-cta-bar">Start a conversation →</a>
+          </div>
+          <div class="closing-link">
+            <a href="mailto:hello@spryelephant.com" class="method-cta-bar">hello@spryelephant.com →</a>
+          </div>
         </div>
+
+        <!-- RIGHT: concentric pulsing rings (same as the hero, smaller scale) -->
+        <div class="closing-right" aria-hidden="true">
+          <svg class="closing-rings-svg" viewBox="-500 -500 1000 1000" preserveAspectRatio="xMidYMid meet">
+            <circle class="pulse-ring" cx="0" cy="0" r="430" fill="#F63822" fill-opacity="0.22"/>
+            <circle class="pulse-ring" cx="0" cy="0" r="370" fill="#F63822" fill-opacity="0.22"/>
+            <circle class="pulse-ring" cx="0" cy="0" r="310" fill="#F63822" fill-opacity="0.22"/>
+            <circle class="pulse-ring" cx="0" cy="0" r="250" fill="#F63822" fill-opacity="0.22"/>
+            <circle class="pulse-ring" cx="0" cy="0" r="190" fill="#F63822" fill-opacity="0.22"/>
+            <circle class="pulse-ring" cx="0" cy="0" r="130" fill="#F63822" fill-opacity="0.22"/>
+            <circle class="pulse-ring" cx="0" cy="0" r="70"  fill="#F63822" fill-opacity="0.22"/>
+          </svg>
+        </div>
+
       </div>
     </section>
 
@@ -347,17 +319,5 @@
   </footer>
 
   <script type="module" src="js/main.js"></script>
-  <script type="module">
-    import { initAnomalousMatter } from "./js/anomalous-matter.js";
-    const mount = document.getElementById("phases-anim");
-    if (mount) {
-      initAnomalousMatter(mount, {
-        color: "#ff3d00",     // signal orange on the dark panel
-        scale: 0.9,           // smaller mesh
-        turns: 1.15,          // rotations across the full scroll
-        fillOpacity: 0.5,     // how strongly each face lights when filled
-      });
-    }
-  </script>
 </body>
 </html>

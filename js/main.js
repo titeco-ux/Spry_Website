@@ -254,33 +254,19 @@ function initMethodWave() {
   const css = getComputedStyle(document.documentElement);
   const ink = (css.getPropertyValue('--color-ink') || '#0a0a0a').trim();
   const accent = (css.getPropertyValue('--color-accent') || '#ff3d00').trim();
+  const line = '#ffffff'; // wave lines: white so they contrast against the black backdrop
 
   // Line config: main = bold accent line in the middle;
-  // the rest are thinner ink lines fanning out above and below.
+  // the rest are thinner white lines fanning out above and below.
   const LINES = [
-    { offset: -0.30, amp: 0.06, width: 0.5,  color: ink,    alpha: 0.28, speed: 1.0 },
-    { offset: -0.16, amp: 0.10, width: 0.75, color: ink,    alpha: 0.45, speed: 1.0 },
-    { offset:  0.00, amp: 0.20, width: 16,   color: accent, alpha: 1.00, speed: 1.0, fillMesh: true }, // main line
-    { offset:  0.16, amp: 0.10, width: 0.75, color: ink,    alpha: 0.45, speed: 1.0, fillDown: true },
-    { offset:  0.30, amp: 0.06, width: 0.5,  color: ink,    alpha: 0.28, speed: 1.0, fillDown: true },
+    { offset: -0.30, amp: 0.06, width: 0.5,  color: line,   alpha: 0.28, speed: 1.0 },
+    { offset: -0.16, amp: 0.10, width: 0.75, color: line,   alpha: 0.45, speed: 1.0 },
+    { offset:  0.00, amp: 0.12, width: 0,    color: accent, alpha: 0.60, speed: 1.0, fillMesh: true }, // main line (no thick border)
+    { offset:  0.16, amp: 0.10, width: 0.75, color: line,   alpha: 0.45, speed: 1.0 },
+    { offset:  0.30, amp: 0.06, width: 0.5,  color: line,   alpha: 0.28, speed: 1.0 },
   ];
   // orange mesh fill spans the band between the orange wave and the wave below it
   LINES[2].bandBelow = LINES[3];
-
-  // Dotted hex-ish mesh, baked into an offscreen tile -> repeating pattern.
-  const makeDotPattern = () => {
-    const cw = 24, ch = 42; // 24 × ~24·√3 → hexagonal spacing
-    const tile = document.createElement('canvas');
-    tile.width = cw; tile.height = ch;
-    const tc = tile.getContext('2d');
-    tc.fillStyle = 'rgba(255,255,255,0.9)';   // white dots
-    const dot = (x, y) => { tc.beginPath(); tc.arc(x, y, 1.2, 0, Math.PI * 2); tc.fill(); };
-    // lattice A (corners) + lattice B (offset by half-cell) = hex lattice
-    dot(0, 0); dot(cw, 0); dot(0, ch); dot(cw, ch);
-    dot(cw / 2, ch / 2);
-    return ctx.createPattern(tile, 'repeat');
-  };
-  const dotPattern = makeDotPattern();
 
   let w = 0, h = 0, dpr = Math.min(window.devicePixelRatio || 1, 2);
   const resize = () => {
@@ -302,14 +288,15 @@ function initMethodWave() {
     const time = t * 0.001;
     const k = (Math.PI * 2) / (w * 0.55);   // wave length (same for all lines)
 
-    // y of a given line's wave at horizontal position x
-    const waveY = (line, x) => {
+    // vertical displacement (the oscillating part) of a line's wave at x
+    const waveDisp = (line, x) => {
       const breathe = 0.75 + 0.25 * Math.sin(time * 0.8 + line.offset * 6);
       const amp = h * line.amp * breathe;
-      const baseY = midY + h * line.offset;
       const phase = time * line.speed * 2.2; // travels left -> right
-      return baseY + Math.sin(x * k - phase) * amp;
+      return Math.sin(x * k - phase) * amp;
     };
+    // y of a given line's wave at horizontal position x
+    const waveY = (line, x) => midY + h * line.offset + waveDisp(line, x);
 
     for (const line of LINES) {
       // band fill between the orange wave (top) and the wave below it (bottom)
@@ -321,12 +308,28 @@ function initMethodWave() {
         }
         for (let x = w; x >= 0; x -= 4) ctx.lineTo(x, waveY(line.bandBelow, x));
         ctx.closePath();
-        ctx.globalAlpha = 1;
+        ctx.globalAlpha = 0.6;         // orange wave at 60% opacity
         ctx.fillStyle = line.color;   // orange backing
         ctx.fill();
         if (line.fillMesh) {
-          ctx.fillStyle = dotPattern; // white dot mesh on top
-          ctx.fill();
+          // white streamlines flowing in the orange wave's direction:
+          // thin lines evenly spaced between the main line (top) and the
+          // wave below (bottom), each rippling with the same waveform.
+          const bottom = line.bandBelow;
+          const STREAMS = 5;
+          ctx.globalAlpha = 1;          // keep streamlines at full strength
+          ctx.strokeStyle = 'rgba(255,255,255,0.55)';
+          ctx.lineWidth = 1;
+          ctx.lineCap = 'round';
+          for (let i = 1; i <= STREAMS; i++) {
+            const f = i / (STREAMS + 1); // 0 = top edge, 1 = bottom edge
+            ctx.beginPath();
+            for (let x = 0; x <= w; x += 4) {
+              const y = waveY(line, x) * (1 - f) + waveY(bottom, x) * f;
+              x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+          }
         }
       }
 
@@ -345,17 +348,19 @@ function initMethodWave() {
         ctx.fill();
       }
 
-      // the wave line itself
-      ctx.beginPath();
-      for (let x = 0; x <= w; x += 4) {
-        const y = waveY(line, x);
-        x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      // the wave line itself (skip if it has no width — e.g. the main band edge)
+      if (line.width > 0) {
+        ctx.beginPath();
+        for (let x = 0; x <= w; x += 4) {
+          const y = waveY(line, x);
+          x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+        }
+        ctx.globalAlpha = line.alpha;
+        ctx.strokeStyle = line.color;
+        ctx.lineWidth = line.width;
+        ctx.lineCap = 'round';
+        ctx.stroke();
       }
-      ctx.globalAlpha = line.alpha;
-      ctx.strokeStyle = line.color;
-      ctx.lineWidth = line.width;
-      ctx.lineCap = 'round';
-      ctx.stroke();
     }
     ctx.globalAlpha = 1;
   };
@@ -370,6 +375,152 @@ function initMethodWave() {
   raf = requestAnimationFrame(loop);
 }
 
+// Isometric grid in the "How we build" right panel. The central 3×3 tiles are
+// interactive (hover = little peek, click = full bar pop). A surrounding ring of
+// "deactivated" tiles isn't interactive — it just bobs up and down in a slow
+// traveling wave, phased by grid position.
+function initPhaseGrid() {
+  const mount = document.getElementById('iso-grid');
+  if (!mount) return;
+  const NS = 'http://www.w3.org/2000/svg';
+
+  const SX = 62, SY = 31, GAP = 0.84;     // cell spacing (half-width/half-height) + gap factor
+  const a = SX * GAP, b = SY * GAP;       // tile half-width / half-height (smaller than spacing → gaps)
+  const HMAX = 78;                        // full bar height on click
+  const ACTIVE_BASE = 26, HOVER_ADD = 16; // resting extrusion of the 3×3 (sits above the wave) + hover peek
+  const AMB_BASE = 2, AMB_AMP = 13;       // ambient (deactivated) tiles bob between these heights
+  const VBW = 760, VBH = 940;             // camera window (viewBox); the field is much bigger and clips
+  const LO = -8, HI = 11;                 // 20×20 field; inner 0..2 is interactive, the rest is ambient
+  const accent = '#ff3d00', wallR = '#c23100', wallL = '#8f2400';
+
+  // field coords: origin at (0,0); the interactive 3×3 is centered on (1,1)
+  const cxOf = (i, j) => (i - j) * SX;
+  const cyOf = (i, j) => (i + j) * SY;
+  // frame the viewBox on the interactive block's center so it stays the "good" size
+  const focusX = cxOf(1, 1), focusY = cyOf(1, 1);
+  const svg = document.createElementNS(NS, 'svg');
+  svg.setAttribute('viewBox', `${focusX - VBW / 2} ${focusY - VBH / 2} ${VBW} ${VBH}`);
+  svg.setAttribute('preserveAspectRatio', 'xMidYMid slice');  // cover the whole panel
+  svg.setAttribute('class', 'iso-grid-svg');
+
+  // draw back-to-front so raised bars overlap the tiles behind them correctly
+  const order = [];
+  for (let j = LO; j <= HI; j++) for (let i = LO; i <= HI; i++) order.push([i, j]);
+  order.sort((p, q) => (p[0] + p[1]) - (q[0] + q[1]));
+
+  const cells = [];
+  for (const [i, j] of order) {
+    const active = i >= 0 && i <= 2 && j >= 0 && j <= 2;
+    const cx = cxOf(i, j), cy = cyOf(i, j);
+    const g = document.createElementNS(NS, 'g');
+    const top = document.createElementNS(NS, 'polygon');
+    top.setAttribute('fill', accent);
+    top.setAttribute('stroke', accent);
+    top.setAttribute('stroke-width', '1.5');
+    top.setAttribute('stroke-linejoin', 'round');
+
+    let left = null, right = null;
+    if (active) {
+      // interactive tiles are full 3D bars (top + two shaded side walls)
+      left = document.createElementNS(NS, 'polygon');
+      right = document.createElementNS(NS, 'polygon');
+      left.setAttribute('fill', wallL);
+      right.setAttribute('fill', wallR);
+      left.setAttribute('pointer-events', 'none');
+      right.setAttribute('pointer-events', 'none');
+      g.append(left, right, top);
+      g.style.cursor = 'pointer';
+    } else {
+      // ambient tiles are flat bobbing diamonds — dim, no walls, not interactive
+      g.setAttribute('opacity', '0.4');
+      top.setAttribute('pointer-events', 'none');
+      g.append(top);
+    }
+    svg.appendChild(g);
+
+    const cell = { i, j, cx, cy, active, cur: 0, vel: 0, target: active ? ACTIVE_BASE : 0, hover: false, clicked: false, left, right, top };
+    cells.push(cell);
+
+    if (active) {
+      // rests raised (ACTIVE_BASE) above the wave; hover peeks higher; click pops a full bar
+      const retarget = () => { cell.target = cell.clicked ? HMAX : (cell.hover ? ACTIVE_BASE + HOVER_ADD : ACTIVE_BASE); };
+      g.addEventListener('mouseenter', () => { cell.hover = true; retarget(); });
+      g.addEventListener('mouseleave', () => { cell.hover = false; retarget(); });
+      g.addEventListener('click', () => { cell.clicked = !cell.clicked; retarget(); });
+    }
+  }
+  mount.appendChild(svg);
+
+  const AMB_MAX = AMB_BASE + AMB_AMP;
+  const draw = (c) => {
+    const { cx, cy } = c, h = c.cur;
+    c.top.setAttribute('points', `${cx},${cy - b - h} ${cx + a},${cy - h} ${cx},${cy + b - h} ${cx - a},${cy - h}`);
+    if (c.active) {
+      c.left.setAttribute('points',  `${cx - a},${cy - h} ${cx},${cy + b - h} ${cx},${cy + b} ${cx - a},${cy}`);
+      c.right.setAttribute('points', `${cx},${cy + b - h} ${cx + a},${cy - h} ${cx + a},${cy} ${cx},${cy + b}`);
+      const t = h / HMAX;
+      c.top.setAttribute('fill-opacity', (0.1 + 0.9 * t).toFixed(3));
+      c.left.setAttribute('fill-opacity', t.toFixed(3));
+      c.right.setAttribute('fill-opacity', t.toFixed(3));
+    } else {
+      c.top.setAttribute('fill-opacity', (0.05 + 0.14 * (h / AMB_MAX)).toFixed(3));
+    }
+  };
+
+  if (prefersReducedMotion) {
+    cells.forEach((c) => { c.cur = c.active ? ACTIVE_BASE : AMB_BASE; draw(c); });
+    cells.filter((c) => c.active).forEach((c) => {
+      c.top.parentElement.addEventListener('mouseenter', () => { c.cur = ACTIVE_BASE + HOVER_ADD; draw(c); });
+      c.top.parentElement.addEventListener('mouseleave', () => { c.cur = ACTIVE_BASE; draw(c); });
+    });
+    return;
+  }
+
+  const loop = (t) => {
+    for (const c of cells) {
+      if (c.active) {
+        c.vel = (c.vel + (c.target - c.cur) * 0.18) * 0.72;   // spring w/ slight overshoot
+        c.cur += c.vel;
+      } else {
+        const phase = (c.i + c.j) * 0.55;                      // diagonal traveling wave
+        c.cur = AMB_BASE + AMB_AMP * (0.5 + 0.5 * Math.sin(t * 0.0016 - phase));
+      }
+      draw(c);
+    }
+    requestAnimationFrame(loop);
+  };
+  requestAnimationFrame(loop);
+}
+
+// The concentric ring field in the closing "Your turn" panel drifts toward the
+// cursor (eased), returning smoothly. The pulse/scale is handled separately by
+// initPulseBackground on the same .pulse-ring circles.
+function initClosingRings() {
+  const panel = document.querySelector('.closing-right');
+  const svg = panel && panel.querySelector('.closing-rings-svg');
+  if (!svg || prefersReducedMotion) return;
+  if (window.matchMedia('(pointer: coarse)').matches) return; // skip touch devices
+
+  const MAX = 70;        // px the field can travel from center
+  const FOLLOW = 0.16;   // fraction of cursor offset to follow
+  let tx = 0, ty = 0, cx = 0, cy = 0, raf = null;
+
+  const loop = () => {
+    cx += (tx - cx) * 0.12;
+    cy += (ty - cy) * 0.12;
+    svg.style.transform = `translate(${cx.toFixed(1)}px, ${cy.toFixed(1)}px)`;
+    raf = (Math.abs(tx - cx) > 0.2 || Math.abs(ty - cy) > 0.2) ? requestAnimationFrame(loop) : null;
+  };
+  const clamp = (v) => Math.max(-MAX, Math.min(MAX, v));
+
+  window.addEventListener('mousemove', (e) => {
+    const r = panel.getBoundingClientRect();
+    tx = clamp((e.clientX - (r.left + r.width / 2)) * FOLLOW);
+    ty = clamp((e.clientY - (r.top + r.height / 2)) * FOLLOW);
+    if (!raf) raf = requestAnimationFrame(loop);
+  }, { passive: true });
+}
+
 // --- Init ---
 function init() {
   initPhaseReveal();
@@ -379,6 +530,8 @@ function init() {
   initWwdMesh();
   initWwdIcons();
   initMethodWave();
+  initPhaseGrid();
+  initClosingRings();
 }
 
 document.addEventListener('DOMContentLoaded', init);
