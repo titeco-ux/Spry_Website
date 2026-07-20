@@ -492,33 +492,62 @@ function initPhaseGrid() {
   requestAnimationFrame(loop);
 }
 
-// The concentric ring field in the closing "Your turn" panel drifts toward the
-// cursor (eased), returning smoothly. The pulse/scale is handled separately by
-// initPulseBackground on the same .pulse-ring circles.
+// Closing "Your turn" panel: 20 concentric circumferences (stroke only, no
+// fill), centered in the div. Each ring drifts toward the cursor — inner rings
+// farther than outer ones, never crossing its neighbour (hero-ring behaviour) —
+// and the radii ripple in a slow traveling wave.
 function initClosingRings() {
-  const panel = document.querySelector('.closing-right');
-  const svg = panel && panel.querySelector('.closing-rings-svg');
-  if (!svg || prefersReducedMotion) return;
-  if (window.matchMedia('(pointer: coarse)').matches) return; // skip touch devices
+  const svg = document.querySelector('.closing-right .closing-rings-svg');
+  if (!svg) return;
+  const NS = 'http://www.w3.org/2000/svg';
 
-  const MAX = 70;        // px the field can travel from center
-  const FOLLOW = 0.16;   // fraction of cursor offset to follow
-  let tx = 0, ty = 0, cx = 0, cy = 0, raf = null;
+  const COUNT = 20, STEP = 24;   // 20 rings, r 24 … 480 (viewBox units)
+  const WAVE_AMP = 8;            // ripple amplitude (< STEP/2 so rings never touch)
+  const groups = [], circles = [], radii = [];
+  for (let i = COUNT; i >= 1; i--) {           // outer → inner
+    const r = i * STEP;
+    const g = document.createElementNS(NS, 'g');
+    g.setAttribute('class', 'closing-ring-follow');
+    const c = document.createElementNS(NS, 'circle');
+    c.setAttribute('cx', '0'); c.setAttribute('cy', '0'); c.setAttribute('r', r.toFixed(2));
+    c.setAttribute('fill', 'none');
+    c.setAttribute('stroke', '#ff3d00');
+    c.setAttribute('stroke-width', '1');
+    c.setAttribute('stroke-opacity', '0.5');
+    g.appendChild(c);
+    svg.appendChild(g);
+    groups.push(g); circles.push(c); radii.push(r);
+  }
 
-  const loop = () => {
-    cx += (tx - cx) * 0.12;
-    cy += (ty - cy) * 0.12;
-    svg.style.transform = `translate(${cx.toFixed(1)}px, ${cy.toFixed(1)}px)`;
-    raf = (Math.abs(tx - cx) > 0.2 || Math.abs(ty - cy) > 0.2) ? requestAnimationFrame(loop) : null;
+  // accumulate max drift inward: each ring may move K·gap more than its outer neighbour
+  const K = 0.5;
+  const maxOff = radii.map(() => 0);
+  for (let i = 1; i < groups.length; i++) maxOff[i] = maxOff[i - 1] + K * (radii[i - 1] - radii[i]);
+
+  if (prefersReducedMotion) return;   // stay static
+
+  let tx = 0, ty = 0, cx = 0, cy = 0;
+  const clamp = (v) => Math.max(-1, Math.min(1, v));
+  // continuous loop: ease the cursor-drift + ripple the radii in a traveling wave
+  const loop = (t) => {
+    cx += (tx - cx) * 0.08;
+    cy += (ty - cy) * 0.08;
+    for (let i = 0; i < groups.length; i++) {
+      groups[i].setAttribute('transform', `translate(${(cx * maxOff[i]).toFixed(2)} ${(cy * maxOff[i]).toFixed(2)})`);
+      circles[i].setAttribute('r', (radii[i] + WAVE_AMP * Math.sin(t * 0.0016 - i * 0.55)).toFixed(2));
+    }
+    requestAnimationFrame(loop);
   };
-  const clamp = (v) => Math.max(-MAX, Math.min(MAX, v));
+  requestAnimationFrame(loop);
+
+  if (window.matchMedia('(pointer: coarse)').matches) return; // no cursor-follow on touch
 
   window.addEventListener('mousemove', (e) => {
-    const r = panel.getBoundingClientRect();
-    tx = clamp((e.clientX - (r.left + r.width / 2)) * FOLLOW);
-    ty = clamp((e.clientY - (r.top + r.height / 2)) * FOLLOW);
-    if (!raf) raf = requestAnimationFrame(loop);
+    const r = svg.getBoundingClientRect();
+    tx = clamp((e.clientX - (r.left + r.width / 2)) / (r.width / 2));   // -1 … 1
+    ty = clamp((e.clientY - (r.top + r.height / 2)) / (r.height / 2));
   }, { passive: true });
+  window.addEventListener('mouseleave', () => { tx = 0; ty = 0; });
 }
 
 // --- Init ---
