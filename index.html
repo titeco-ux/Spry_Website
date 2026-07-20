@@ -174,25 +174,41 @@
 
       <!-- BOTTOM block (30%) — div 2 (left) | split A + B + div 5 (right) -->
       <div class="method-grid method-grid-bottom">
-        <!-- LEFT: div 2 — no heading -->
+        <!-- LEFT: div 2 -->
         <div class="method-side">
           <div class="method-card method-plain">
             <div class="wwd-panel-body">
+              <h3 class="method-card-title">About mainline</h3>
               <p>One main branch for how Spry works. No long-lived feature branches. No handoffs between disciplines. No "we'll integrate later." Every phase commits its work back to the same line — and the next project starts from where the last one left off. That's the compounding part.</p>
             </div>
           </div>
         </div>
         <!-- RIGHT: split A + B on top, div 5 orange bar at bottom -->
         <div class="method-side method-side-right">
-          <!-- split A -->
+          <!-- split A — circle split in two, one half blinks -->
           <div class="method-card method-plain">
-            <div class="wwd-panel-body">
+            <div class="wwd-panel-body method-item">
+              <div class="wwd-poly" aria-hidden="true">
+                <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+                  <path class="poly-fill" d="M50 12 A38 38 0 0 1 50 88 Z"/>
+                  <circle class="poly-stroke" pathLength="1" cx="50" cy="50" r="38"/>
+                  <line class="poly-stroke" pathLength="1" x1="50" y1="12" x2="50" y2="88"/>
+                </svg>
+              </div>
               <p>We ship to one line. The one that matters.</p>
             </div>
           </div>
-          <!-- split B -->
+          <!-- split B — diamond split in four, one quarter blinks -->
           <div class="method-card method-plain">
-            <div class="wwd-panel-body">
+            <div class="wwd-panel-body method-item">
+              <div class="wwd-poly" aria-hidden="true">
+                <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon class="poly-fill" points="50,50 50,10 90,50"/>
+                  <polygon class="poly-stroke" pathLength="1" points="50,10 90,50 50,90 10,50"/>
+                  <line class="poly-stroke" pathLength="1" x1="50" y1="10" x2="50" y2="90"/>
+                  <line class="poly-stroke" pathLength="1" x1="10" y1="50" x2="90" y2="50"/>
+                </svg>
+              </div>
               <p>No side branches. No handoffs. No "we'll integrate later."</p>
             </div>
           </div>
@@ -207,86 +223,18 @@
     <section class="phases" id="phases">
       <div class="phases-grid">
 
-        <!-- div 1 — LEFT: header + 9 phase rows (same design as Outcomes) -->
+        <!-- div 1 — LEFT: header -->
         <div class="phases-main">
-
           <div class="outcomes-head">
             <p class="outcomes-kicker">How we build</p>
             <h2 class="outcomes-title">Nine phases. One main line.</h2>
             <p class="outcomes-sub">From the first signal to the verified release — agent-orchestrated, human-accountable, end to end. No mystery.</p>
           </div>
-
-          <div class="outcomes-list">
-            <article class="outcome">
-              <div class="outcome-body">
-                <h3 class="outcome-title">Signal</h3>
-                <p>Interviews, transcripts & market data in.</p>
-              </div>
-              <div class="outcome-tag">01</div>
-            </article>
-            <article class="outcome">
-              <div class="outcome-body">
-                <h3 class="outcome-title">Discover</h3>
-                <p>Themes synthesized. Problem validated.</p>
-              </div>
-              <div class="outcome-tag">02</div>
-            </article>
-            <article class="outcome">
-              <div class="outcome-body">
-                <h3 class="outcome-title">Frame</h3>
-                <p>Scope, constraints & success defined.</p>
-              </div>
-              <div class="outcome-tag">03</div>
-            </article>
-            <article class="outcome">
-              <div class="outcome-body">
-                <h3 class="outcome-title">Design</h3>
-                <p>Flows and interface, agent-accelerated.</p>
-              </div>
-              <div class="outcome-tag">04</div>
-            </article>
-            <article class="outcome">
-              <div class="outcome-body">
-                <h3 class="outcome-title">Architect</h3>
-                <p>Senior engineers set the foundation.</p>
-              </div>
-              <div class="outcome-tag">05</div>
-            </article>
-            <article class="outcome">
-              <div class="outcome-body">
-                <h3 class="outcome-title">Build</h3>
-                <p>Specialist agents implement end-to-end.</p>
-              </div>
-              <div class="outcome-tag">06</div>
-            </article>
-            <article class="outcome">
-              <div class="outcome-body">
-                <h3 class="outcome-title">Review</h3>
-                <p>Humans own every merge to main.</p>
-              </div>
-              <div class="outcome-tag">07</div>
-            </article>
-            <article class="outcome">
-              <div class="outcome-body">
-                <h3 class="outcome-title">Verify</h3>
-                <p>Visual regression + AI test suites.</p>
-              </div>
-              <div class="outcome-tag">08</div>
-            </article>
-            <article class="outcome">
-              <div class="outcome-body">
-                <h3 class="outcome-title">Release</h3>
-                <p>The boring kind of launch.</p>
-              </div>
-              <div class="outcome-tag">09</div>
-            </article>
-          </div>
-
         </div>
 
-        <!-- div 2 — RIGHT: sticky morphing polyhedron (anomalous matter) -->
-        <div class="phases-void" aria-hidden="true">
-          <div class="phases-anim" id="phases-anim"></div>
+        <!-- div 2 — RIGHT: isometric grid; central 3×3 interactive over a wavy ambient field -->
+        <div class="phases-void">
+          <canvas class="phase-arc" id="phase-arc"></canvas>
         </div>
 
       </div>
@@ -333,17 +281,28 @@
 
     <!-- ================= SECTION 7 · CLOSING CTA ================= -->
     <section class="closing" id="contact">
-      <div class="container">
-        <p class="eyebrow">// YOUR TURN</p>
-        <h2 class="closing-title">Got an idea?<br>Let's get it on Mainline.</h2>
-        <p class="closing-sub">
-          Tell us a bit about your project. We'll come back within two business days —
-          with thoughts, questions, and a clear next step. No sales deck.
-        </p>
-        <div class="cta-row">
-          <a href="mailto:hello@spryelephant.com?subject=Start%20a%20project" class="btn btn-primary">Start a conversation</a>
-          <a href="mailto:hello@spryelephant.com" class="btn btn-ghost">hello@spryelephant.com</a>
+      <div class="outcomes-grid">
+
+        <!-- LEFT: three stacked divs — content, then the CTA link -->
+        <div class="closing-left">
+          <div class="closing-content">
+            <p class="outcomes-kicker">YOUR TURN</p>
+            <h2 class="outcomes-title">Got an idea?<br>Let's get it on Mainline.</h2>
+            <p class="outcomes-sub">
+              Tell us a bit about your project. We'll come back within two business days —
+              with thoughts, questions, and a clear next step. No sales deck.
+            </p>
+          </div>
+          <div class="closing-link closing-link--primary">
+            <a href="mailto:hello@spryelephant.com?subject=Start%20a%20project" class="method-cta-bar">Start a conversation →</a>
+          </div>
         </div>
+
+        <!-- RIGHT: 20 concentric circumferences drifting toward the cursor + rippling -->
+        <div class="closing-right" aria-hidden="true">
+          <svg class="closing-rings-svg" viewBox="-333 -333 666 666" preserveAspectRatio="xMidYMid meet"></svg>
+        </div>
+
       </div>
     </section>
 
@@ -351,25 +310,56 @@
 
   <!-- ================= FOOTER ================= -->
   <footer class="site-footer">
-    <div class="container footer-inner">
-      <span class="brand"><span class="brand-mark">◼</span> SPRY<span class="brand-slash">/</span>ELEPHANT</span>
-      <p class="footer-line">We ship to one line. The one that matters.</p>
-      <span class="footer-meta">© 2026 · hello@spryelephant.com</span>
+    <div class="container">
+
+      <div class="footer-top">
+        <!-- LEFT: logo + copyright -->
+        <div class="footer-brand">
+          <img class="footer-logo" src="assets/spry elephant/logo2.svg" alt="Spry Elephant">
+          <p class="footer-copy">© 2026 Spry AI · Boulder, CO</p>
+        </div>
+
+        <!-- RIGHT: link columns -->
+        <nav class="footer-links" aria-label="Footer">
+          <div class="footer-col">
+            <p class="footer-col-title">Pages</p>
+            <ul>
+              <li><a href="#what-we-do">What we do</a></li>
+              <li><a href="#why-mainline">Mainline</a></li>
+              <li><a href="#phases">Process</a></li>
+              <li><a href="#outcomes">Outcomes</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <p class="footer-col-title">Company</p>
+            <ul>
+              <li><a href="#why-mainline">Methodology</a></li>
+              <li><a href="#phases">How we build</a></li>
+              <li><a href="#contact">Contact</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <p class="footer-col-title">Connect</p>
+            <ul>
+              <li><a href="mailto:hello@spryelephant.com">hello@spryelephant.com</a></li>
+            </ul>
+          </div>
+        </nav>
+      </div>
+
+      <!-- BOTTOM: made-by + socials + back-to-top -->
+      <div class="footer-bottom">
+        <p class="footer-made">© Made by Spry team</p>
+        <div class="footer-social">
+          <a href="#" aria-label="LinkedIn">LinkedIn</a>
+          <a href="#" aria-label="Twitter">Twitter</a>
+          <a href="#top" class="footer-arrow" aria-label="Back to top">↑</a>
+        </div>
+      </div>
+
     </div>
   </footer>
 
   <script type="module" src="js/main.js"></script>
-  <script type="module">
-    import { initAnomalousMatter } from "./js/anomalous-matter.js";
-    const mount = document.getElementById("phases-anim");
-    if (mount) {
-      initAnomalousMatter(mount, {
-        color: "#ff3d00",     // signal orange on the dark panel
-        scale: 0.9,           // smaller mesh
-        turns: 1.15,          // rotations across the full scroll
-        fillOpacity: 0.5,     // how strongly each face lights when filled
-      });
-    }
-  </script>
 </body>
 </html>

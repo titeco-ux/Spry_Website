@@ -265,33 +265,19 @@ function initMethodWave() {
   const css = getComputedStyle(document.documentElement);
   const ink = (css.getPropertyValue('--color-ink') || '#0a0a0a').trim();
   const accent = (css.getPropertyValue('--color-accent') || '#ff3d00').trim();
+  const line = ink; // wave lines: dark so they contrast against the stone backdrop
 
   // Line config: main = bold accent line in the middle;
-  // the rest are thinner ink lines fanning out above and below.
+  // the rest are thinner white lines fanning out above and below.
   const LINES = [
-    { offset: -0.30, amp: 0.06, width: 0.5,  color: ink,    alpha: 0.28, speed: 1.0 },
-    { offset: -0.16, amp: 0.10, width: 0.75, color: ink,    alpha: 0.45, speed: 1.0 },
-    { offset:  0.00, amp: 0.20, width: 16,   color: accent, alpha: 1.00, speed: 1.0, fillMesh: true }, // main line
-    { offset:  0.16, amp: 0.10, width: 0.75, color: ink,    alpha: 0.45, speed: 1.0, fillDown: true },
-    { offset:  0.30, amp: 0.06, width: 0.5,  color: ink,    alpha: 0.28, speed: 1.0, fillDown: true },
+    { offset: -0.30, amp: 0.06, width: 0.5,  color: line,   alpha: 0.28, speed: 1.0 },
+    { offset: -0.16, amp: 0.10, width: 0.75, color: line,   alpha: 0.45, speed: 1.0 },
+    { offset:  0.00, amp: 0.12, width: 0,    color: accent, alpha: 0.60, speed: 1.0, fillMesh: true }, // main line (no thick border)
+    { offset:  0.16, amp: 0.10, width: 0.75, color: line,   alpha: 0.45, speed: 1.0 },
+    { offset:  0.30, amp: 0.06, width: 0.5,  color: line,   alpha: 0.28, speed: 1.0 },
   ];
   // orange mesh fill spans the band between the orange wave and the wave below it
   LINES[2].bandBelow = LINES[3];
-
-  // Dotted hex-ish mesh, baked into an offscreen tile -> repeating pattern.
-  const makeDotPattern = () => {
-    const cw = 24, ch = 42; // 24 × ~24·√3 → hexagonal spacing
-    const tile = document.createElement('canvas');
-    tile.width = cw; tile.height = ch;
-    const tc = tile.getContext('2d');
-    tc.fillStyle = 'rgba(255,255,255,0.9)';   // white dots
-    const dot = (x, y) => { tc.beginPath(); tc.arc(x, y, 1.2, 0, Math.PI * 2); tc.fill(); };
-    // lattice A (corners) + lattice B (offset by half-cell) = hex lattice
-    dot(0, 0); dot(cw, 0); dot(0, ch); dot(cw, ch);
-    dot(cw / 2, ch / 2);
-    return ctx.createPattern(tile, 'repeat');
-  };
-  const dotPattern = makeDotPattern();
 
   let w = 0, h = 0, dpr = Math.min(window.devicePixelRatio || 1, 2);
   const resize = () => {
@@ -313,14 +299,15 @@ function initMethodWave() {
     const time = t * 0.001;
     const k = (Math.PI * 2) / (w * 0.55);   // wave length (same for all lines)
 
-    // y of a given line's wave at horizontal position x
-    const waveY = (line, x) => {
+    // vertical displacement (the oscillating part) of a line's wave at x
+    const waveDisp = (line, x) => {
       const breathe = 0.75 + 0.25 * Math.sin(time * 0.8 + line.offset * 6);
       const amp = h * line.amp * breathe;
-      const baseY = midY + h * line.offset;
       const phase = time * line.speed * 2.2; // travels left -> right
-      return baseY + Math.sin(x * k - phase) * amp;
+      return Math.sin(x * k - phase) * amp;
     };
+    // y of a given line's wave at horizontal position x
+    const waveY = (line, x) => midY + h * line.offset + waveDisp(line, x);
 
     for (const line of LINES) {
       // band fill between the orange wave (top) and the wave below it (bottom)
@@ -332,12 +319,28 @@ function initMethodWave() {
         }
         for (let x = w; x >= 0; x -= 4) ctx.lineTo(x, waveY(line.bandBelow, x));
         ctx.closePath();
-        ctx.globalAlpha = 1;
+        ctx.globalAlpha = 0.6;         // orange wave at 60% opacity
         ctx.fillStyle = line.color;   // orange backing
         ctx.fill();
         if (line.fillMesh) {
-          ctx.fillStyle = dotPattern; // white dot mesh on top
-          ctx.fill();
+          // white streamlines flowing in the orange wave's direction:
+          // thin lines evenly spaced between the main line (top) and the
+          // wave below (bottom), each rippling with the same waveform.
+          const bottom = line.bandBelow;
+          const STREAMS = 5;
+          ctx.globalAlpha = 1;          // keep streamlines at full strength
+          ctx.strokeStyle = 'rgba(10,10,10,0.4)';   // dark streamlines for the stone backdrop
+          ctx.lineWidth = 1;
+          ctx.lineCap = 'round';
+          for (let i = 1; i <= STREAMS; i++) {
+            const f = i / (STREAMS + 1); // 0 = top edge, 1 = bottom edge
+            ctx.beginPath();
+            for (let x = 0; x <= w; x += 4) {
+              const y = waveY(line, x) * (1 - f) + waveY(bottom, x) * f;
+              x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+          }
         }
       }
 
@@ -356,17 +359,19 @@ function initMethodWave() {
         ctx.fill();
       }
 
-      // the wave line itself
-      ctx.beginPath();
-      for (let x = 0; x <= w; x += 4) {
-        const y = waveY(line, x);
-        x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      // the wave line itself (skip if it has no width — e.g. the main band edge)
+      if (line.width > 0) {
+        ctx.beginPath();
+        for (let x = 0; x <= w; x += 4) {
+          const y = waveY(line, x);
+          x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+        }
+        ctx.globalAlpha = line.alpha;
+        ctx.strokeStyle = line.color;
+        ctx.lineWidth = line.width;
+        ctx.lineCap = 'round';
+        ctx.stroke();
       }
-      ctx.globalAlpha = line.alpha;
-      ctx.strokeStyle = line.color;
-      ctx.lineWidth = line.width;
-      ctx.lineCap = 'round';
-      ctx.stroke();
     }
     ctx.globalAlpha = 1;
   };
@@ -380,9 +385,7 @@ function initMethodWave() {
   const loop = (t) => { drawFrame(t); raf = requestAnimationFrame(loop); };
   raf = requestAnimationFrame(loop);
 }
-
-// "What we do": title reveals letter-by-letter and the Discover/Build/Verify
-// divs slide in from the left in order, once the section enters the viewport.
+// element scrolls into view, and closes again as you scroll back up.
 function initWhatWeDoIntro() {
   const section = document.getElementById('what-we-do');
   if (!section) return;
@@ -409,11 +412,7 @@ function initWhatWeDoIntro() {
 
   items.forEach((it) => { it.style.opacity = '0'; });
 
-  let done = false;
-  const run = () => {
-    if (done) return;
-    done = true;
-
+  const revealLetters = () => {
     if (letters.length) {
       animate(letters, {
         opacity: [0, 1],
@@ -422,33 +421,37 @@ function initWhatWeDoIntro() {
         ease: 'out(2)',
       });
     }
-    if (items.length) {
-      animate(items, {
-        opacity: [0, 1],
-        translateX: [-60, 0],   // slide in from the left
-        duration: 600,
-        delay: stagger(160),    // Discover first, then Build, then Verify
-        ease: 'out(3)',
-      });
-      // enable the hover-pop transition once the entrance is finished
-      setTimeout(() => items.forEach((it) => it.classList.add('pop')),
-        600 + 160 * items.length + 80);
-    }
+  };
+  // each item slides in when the item itself is mostly in view — slower than before
+  const revealItem = (it) => {
+    animate(it, {
+      opacity: [0, 1],
+      translateX: [-60, 0],
+      duration: 950,          // slower entrance
+      ease: 'out(3)',
+    });
+    setTimeout(() => it.classList.add('pop'), 1000);  // enable hover-pop after entrance
   };
 
   if ('IntersectionObserver' in window) {
-    const obs = new IntersectionObserver((entries) => {
-      entries.forEach((e) => { if (e.isIntersecting) { run(); obs.disconnect(); } });
+    // letters reveal once the section header comes in
+    const headObs = new IntersectionObserver((entries) => {
+      entries.forEach((e) => { if (e.isIntersecting) { revealLetters(); headObs.disconnect(); } });
     }, { threshold: 0.25 });
-    obs.observe(section);
+    headObs.observe(section);
+
+    // items each reveal only when ~60% of that item is on screen (not the whole
+    // section early), so they animate as they're actually shown
+    const itemObs = new IntersectionObserver((entries) => {
+      entries.forEach((e) => { if (e.isIntersecting) { revealItem(e.target); itemObs.unobserve(e.target); } });
+    }, { threshold: 0.6 });
+    items.forEach((it) => itemObs.observe(it));
   } else {
-    run();
+    revealLetters();
+    items.forEach((it) => { it.style.opacity = '1'; it.classList.add('pop'); });
   }
 }
 
-// Clip-path reveal in the methodology right div, scrubbed by scroll: the panel
-// opens (and the X/Y guide lines + corner marker track the opening vertex) as the
-// element scrolls into view, and closes again as you scroll back up.
 function initMethodReveal() {
   const reveal = document.getElementById('method-reveal');
   if (!reveal) return;
@@ -510,44 +513,368 @@ function initMethodReveal() {
 
 // Methodology paragraph reveals letter-by-letter when it scrolls into view.
 function initMethodText() {
-  const para = document.querySelector('#why-mainline .outcomes-sub');
-  if (!para || prefersReducedMotion) return;
+  const section = document.getElementById('why-mainline');
+  if (!section || prefersReducedMotion) return;
+  const io = 'IntersectionObserver' in window;
 
-  const text = para.textContent;
-  para.textContent = '';
-  const letters = [];
-  for (const ch of text) {
-    const s = document.createElement('span');
-    s.textContent = ch;
-    s.style.display = 'inline-block';
-    s.style.whiteSpace = 'pre';
-    s.style.opacity = '0';
-    para.appendChild(s);
-    letters.push(s);
+  // per-letter reveal (like section 2) for both body paragraphs
+  const paras = [
+    section.querySelector('.method-grid-top .outcomes-sub'),
+    section.querySelector('.method-grid-bottom .method-side:not(.method-side-right) .method-card p'),
+  ].filter(Boolean);
+
+  paras.forEach((para) => {
+    const text = para.textContent;
+    para.textContent = '';
+    const letters = [];
+    for (const ch of text) {
+      const s = document.createElement('span');
+      s.textContent = ch;
+      s.style.display = 'inline-block';
+      s.style.whiteSpace = 'pre';
+      s.style.opacity = '0';
+      para.appendChild(s);
+      letters.push(s);
+    }
+    const run = () => animate(letters, { opacity: [0, 1], duration: 320, delay: stagger(12), ease: 'out(2)' });
+    if (io) {
+      const obs = new IntersectionObserver((entries) => {
+        entries.forEach((e) => { if (e.isIntersecting) { run(); obs.disconnect(); } });
+      }, { threshold: 0.4 });
+      obs.observe(para);
+    } else { run(); }
+  });
+
+  // the two split cards slide in from the left, like the section-2 items
+  const cards = Array.from(section.querySelectorAll('.method-grid-bottom .method-side-right .method-card'));
+  cards.forEach((c) => { c.style.opacity = '0'; });
+  if (io) {
+    const cobs = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) {
+          animate(e.target, { opacity: [0, 1], translateX: [-60, 0], duration: 950, ease: 'out(3)' });
+          setTimeout(() => e.target.classList.add('pop'), 1000);  // enable hover-pop after entrance
+          cobs.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.6 });
+    cards.forEach((c) => cobs.observe(c));
+  } else {
+    cards.forEach((c) => { c.style.opacity = '1'; c.classList.add('pop'); });
   }
+}
 
-  let done = false;
-  const run = () => {
-    if (done) return;
-    done = true;
-    animate(letters, { opacity: [0, 1], duration: 320, delay: stagger(12), ease: 'out(2)' });
+// interactive (hover = little peek, click = full bar pop). A surrounding ring of
+// "deactivated" tiles isn't interactive — it just bobs up and down in a slow
+// traveling wave, phased by grid position.
+function initPhaseGrid() {
+  const mount = document.getElementById('iso-grid');
+  if (!mount) return;
+  const NS = 'http://www.w3.org/2000/svg';
+
+  const SX = 62, SY = 31, GAP = 0.84;     // cell spacing (half-width/half-height) + gap factor
+  const a = SX * GAP, b = SY * GAP;       // tile half-width / half-height (smaller than spacing → gaps)
+  const HMAX = 78;                        // full bar height on click
+  const ACTIVE_BASE = 26, HOVER_ADD = 16; // resting extrusion of the 3×3 (sits above the wave) + hover peek
+  const AMB_BASE = 2, AMB_AMP = 13;       // ambient (deactivated) tiles bob between these heights
+  const VBW = 760, VBH = 940;             // camera window (viewBox); the field is much bigger and clips
+  const LO = -8, HI = 11;                 // 20×20 field; inner 0..2 is interactive, the rest is ambient
+  const accent = '#ff3d00', wallR = '#c23100', wallL = '#8f2400';
+
+  // field coords: origin at (0,0); the interactive 3×3 is centered on (1,1)
+  const cxOf = (i, j) => (i - j) * SX;
+  const cyOf = (i, j) => (i + j) * SY;
+  // frame the viewBox on the interactive block's center so it stays the "good" size
+  const focusX = cxOf(1, 1), focusY = cyOf(1, 1);
+  const svg = document.createElementNS(NS, 'svg');
+  svg.setAttribute('viewBox', `${focusX - VBW / 2} ${focusY - VBH / 2} ${VBW} ${VBH}`);
+  svg.setAttribute('preserveAspectRatio', 'xMidYMid slice');  // cover the whole panel
+  svg.setAttribute('class', 'iso-grid-svg');
+
+  // draw back-to-front so raised bars overlap the tiles behind them correctly
+  const order = [];
+  for (let j = LO; j <= HI; j++) for (let i = LO; i <= HI; i++) order.push([i, j]);
+  order.sort((p, q) => (p[0] + p[1]) - (q[0] + q[1]));
+
+  const cells = [];
+  for (const [i, j] of order) {
+    const active = i >= 0 && i <= 2 && j >= 0 && j <= 2;
+    const cx = cxOf(i, j), cy = cyOf(i, j);
+    const g = document.createElementNS(NS, 'g');
+    const top = document.createElementNS(NS, 'polygon');
+    top.setAttribute('fill', accent);
+    top.setAttribute('stroke', accent);
+    top.setAttribute('stroke-width', '1.5');
+    top.setAttribute('stroke-linejoin', 'round');
+
+    let left = null, right = null;
+    if (active) {
+      // interactive tiles are full 3D bars (top + two shaded side walls)
+      left = document.createElementNS(NS, 'polygon');
+      right = document.createElementNS(NS, 'polygon');
+      left.setAttribute('fill', wallL);
+      right.setAttribute('fill', wallR);
+      left.setAttribute('pointer-events', 'none');
+      right.setAttribute('pointer-events', 'none');
+      g.append(left, right, top);
+      g.style.cursor = 'pointer';
+    } else {
+      // ambient tiles are flat bobbing diamonds — dim, no walls, not interactive
+      g.setAttribute('opacity', '0.4');
+      top.setAttribute('pointer-events', 'none');
+      g.append(top);
+    }
+    svg.appendChild(g);
+
+    const cell = { i, j, cx, cy, active, cur: 0, vel: 0, target: active ? ACTIVE_BASE : 0, hover: false, clicked: false, left, right, top };
+    cells.push(cell);
+
+    if (active) {
+      // rests raised (ACTIVE_BASE) above the wave; hover peeks higher; click pops a full bar
+      const retarget = () => { cell.target = cell.clicked ? HMAX : (cell.hover ? ACTIVE_BASE + HOVER_ADD : ACTIVE_BASE); };
+      g.addEventListener('mouseenter', () => { cell.hover = true; retarget(); });
+      g.addEventListener('mouseleave', () => { cell.hover = false; retarget(); });
+      g.addEventListener('click', () => { cell.clicked = !cell.clicked; retarget(); });
+    }
+  }
+  mount.appendChild(svg);
+
+  const AMB_MAX = AMB_BASE + AMB_AMP;
+  const draw = (c) => {
+    const { cx, cy } = c, h = c.cur;
+    c.top.setAttribute('points', `${cx},${cy - b - h} ${cx + a},${cy - h} ${cx},${cy + b - h} ${cx - a},${cy - h}`);
+    if (c.active) {
+      c.left.setAttribute('points',  `${cx - a},${cy - h} ${cx},${cy + b - h} ${cx},${cy + b} ${cx - a},${cy}`);
+      c.right.setAttribute('points', `${cx},${cy + b - h} ${cx + a},${cy - h} ${cx + a},${cy} ${cx},${cy + b}`);
+      const t = h / HMAX;
+      c.top.setAttribute('fill-opacity', (0.1 + 0.9 * t).toFixed(3));
+      c.left.setAttribute('fill-opacity', t.toFixed(3));
+      c.right.setAttribute('fill-opacity', t.toFixed(3));
+    } else {
+      c.top.setAttribute('fill-opacity', (0.05 + 0.14 * (h / AMB_MAX)).toFixed(3));
+    }
   };
 
-  if ('IntersectionObserver' in window) {
-    const obs = new IntersectionObserver((entries) => {
-      entries.forEach((e) => { if (e.isIntersecting) { run(); obs.disconnect(); } });
-    }, { threshold: 0.4 });
-    obs.observe(para);
-  } else {
-    run();
+  if (prefersReducedMotion) {
+    cells.forEach((c) => { c.cur = c.active ? ACTIVE_BASE : AMB_BASE; draw(c); });
+    cells.filter((c) => c.active).forEach((c) => {
+      c.top.parentElement.addEventListener('mouseenter', () => { c.cur = ACTIVE_BASE + HOVER_ADD; draw(c); });
+      c.top.parentElement.addEventListener('mouseleave', () => { c.cur = ACTIVE_BASE; draw(c); });
+    });
+    return;
   }
+
+  const loop = (t) => {
+    for (const c of cells) {
+      if (c.active) {
+        c.vel = (c.vel + (c.target - c.cur) * 0.18) * 0.72;   // spring w/ slight overshoot
+        c.cur += c.vel;
+      } else {
+        const phase = (c.i + c.j) * 0.55;                      // diagonal traveling wave
+        c.cur = AMB_BASE + AMB_AMP * (0.5 + 0.5 * Math.sin(t * 0.0016 - phase));
+      }
+      draw(c);
+    }
+    requestAnimationFrame(loop);
+  };
+  requestAnimationFrame(loop);
+}
+
+// Closing "Your turn" panel: 20 concentric circumferences (stroke only, no
+// fill), centered in the div. Each ring drifts toward the cursor — inner rings
+// farther than outer ones, never crossing its neighbour (hero-ring behaviour) —
+// and the radii ripple in a slow traveling wave.
+function initClosingRings() {
+  const svg = document.querySelector('.closing-right .closing-rings-svg');
+  if (!svg) return;
+  const NS = 'http://www.w3.org/2000/svg';
+
+  const COUNT = 20, STEP = 24;   // 20 rings, r 24 … 480 (viewBox units)
+  const WAVE_AMP = 8;            // ripple amplitude (< STEP/2 so rings never touch)
+  const groups = [], circles = [], radii = [];
+  for (let i = COUNT; i >= 1; i--) {           // outer → inner
+    const r = i * STEP;
+    const g = document.createElementNS(NS, 'g');
+    g.setAttribute('class', 'closing-ring-follow');
+    const c = document.createElementNS(NS, 'circle');
+    c.setAttribute('cx', '0'); c.setAttribute('cy', '0'); c.setAttribute('r', r.toFixed(2));
+    c.setAttribute('fill', 'none');
+    c.setAttribute('stroke', '#ff3d00');
+    c.setAttribute('stroke-width', '1');
+    c.setAttribute('stroke-opacity', '0.5');
+    g.appendChild(c);
+    svg.appendChild(g);
+    groups.push(g); circles.push(c); radii.push(r);
+  }
+
+  // accumulate max drift inward: each ring may move K·gap more than its outer neighbour
+  const K = 0.5;
+  const maxOff = radii.map(() => 0);
+  for (let i = 1; i < groups.length; i++) maxOff[i] = maxOff[i - 1] + K * (radii[i - 1] - radii[i]);
+
+  if (prefersReducedMotion) return;   // stay static
+
+  let tx = 0, ty = 0, cx = 0, cy = 0;
+  const clamp = (v) => Math.max(-1, Math.min(1, v));
+  // continuous loop: ease the cursor-drift + ripple the radii in a traveling wave
+  const loop = (t) => {
+    cx += (tx - cx) * 0.08;
+    cy += (ty - cy) * 0.08;
+    for (let i = 0; i < groups.length; i++) {
+      groups[i].setAttribute('transform', `translate(${(cx * maxOff[i]).toFixed(2)} ${(cy * maxOff[i]).toFixed(2)})`);
+      circles[i].setAttribute('r', (radii[i] + WAVE_AMP * Math.sin(t * 0.0016 - i * 0.55)).toFixed(2));
+    }
+    requestAnimationFrame(loop);
+  };
+  requestAnimationFrame(loop);
+
+  if (window.matchMedia('(pointer: coarse)').matches) return; // no cursor-follow on touch
+
+  window.addEventListener('mousemove', (e) => {
+    const r = svg.getBoundingClientRect();
+    tx = clamp((e.clientX - (r.left + r.width / 2)) / (r.width / 2));   // -1 … 1
+    ty = clamp((e.clientY - (r.top + r.height / 2)) / (r.height / 2));
+  }, { passive: true });
+  window.addEventListener('mouseleave', () => { tx = 0; ty = 0; });
+}
+
+// Hero scroll choreography (over the first viewport): heading/subheading drift
+// up, the bottom nav bar drifts down, and the concentric-circle field scales
+// down and fades out. Section 2 (sticky-covered) stacks over the hero via CSS.
+function initHeroScroll() {
+  const content = document.querySelector('.hero-content');
+  const nav = document.querySelector('.hero-nav');
+  const rings = document.getElementById('rings');
+  const ringsSvg = document.querySelector('.rings-svg');
+  if (!content && !nav && !rings) return;
+
+  let raf = 0;
+  const update = () => {
+    raf = 0;
+    const p = Math.max(0, Math.min(1, window.scrollY / (window.innerHeight || 1)));
+    const fade = Math.max(0, 1 - p * 1.25).toFixed(3);   // hero fades out slightly ahead of the cover
+    if (content) { content.style.transform = `translateY(${(-p * 180).toFixed(1)}px)`; content.style.opacity = fade; }
+    if (nav) { nav.style.transform = `translateY(${(p * 160).toFixed(1)}px)`; nav.style.opacity = fade; }
+    if (ringsSvg) ringsSvg.style.transform = `scale(${(1 - p * 0.6).toFixed(3)})`;
+    if (rings) rings.style.opacity = (1 - p).toFixed(3);
+  };
+  const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll);
+  update();
+}
+
+// Site-wide smooth (damped) scrolling via Lenis — slower wheel + eased catch-up.
+// Dynamic import + try/catch so a CDN hiccup never breaks the rest of the site.
+async function initSmoothScroll() {
+  if (prefersReducedMotion) return;
+  try {
+    const { default: Lenis } = await import('https://cdn.jsdelivr.net/npm/lenis@1/+esm');
+    const lenis = new Lenis({
+      lerp: 0.075,           // lower = smoother / slower catch-up
+      wheelMultiplier: 0.75, // <1 = less distance per wheel tick (slower)
+      smoothWheel: true,
+    });
+    const raf = (t) => { lenis.raf(t); requestAnimationFrame(raf); };
+    requestAnimationFrame(raf);
+  } catch (e) { /* smooth scroll is optional — fall back to native */ }
+}
+
+// Hero concentric rings: ripple the radii in a slow traveling wave (same
+// behaviour as the "Your turn" rings), on top of the cursor-follow drift.
+function initHeroRingsWave() {
+  if (prefersReducedMotion) return;
+  const circles = Array.from(document.querySelectorAll('#rings .pulse-ring'));
+  if (!circles.length) return;
+  const base = circles.map((c) => parseFloat(c.getAttribute('r')));
+  const AMP = 15;   // < half the ~60 gap, so rings never cross
+  const loop = (t) => {
+    for (let i = 0; i < circles.length; i++) {
+      circles[i].setAttribute('r', (base[i] + AMP * Math.sin(t * 0.0016 - i * 0.55)).toFixed(2));
+    }
+    requestAnimationFrame(loop);
+  };
+  requestAnimationFrame(loop);
+}
+
+// "How we build" right panel: a quarter-circle (90°) orange band on stone, with
+// parallel arcs inside it and concentric parallel arcs echoing it outside.
+// Centered on the bottom-left corner; a gentle breathe animates the radius.
+function initPhaseArc() {
+  const canvas = document.getElementById('phase-arc');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const mount = canvas.parentElement;
+  const accent = (getComputedStyle(document.documentElement).getPropertyValue('--color-accent') || '#ff3d00').trim();
+
+  let w = 0, h = 0, dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const resize = () => {
+    w = mount.clientWidth; h = mount.clientHeight;
+    if (!w || !h) return;
+    canvas.width = w * dpr; canvas.height = h * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  };
+  resize();
+  window.addEventListener('resize', resize);
+
+  const a0 = -Math.PI / 2, a1 = 0;   // quarter arc: up → right
+  const STEP = 0.02;
+  const draw = (t) => {
+    if (!w || !h) { resize(); return; }
+    ctx.clearRect(0, 0, w, h);
+    const time = t * 0.001;
+    const cx = 0, cy = h;              // bottom-left corner = arc center
+    const D = Math.hypot(w, h);
+    const R = D * 0.52;               // constant radius — no pulsation
+    const bandW = D * 0.11;
+    const rIn = R - bandW / 2, rOut = R + bandW / 2;
+    const AMP = D * 0.014, K = 11, SPEED = 2.0;   // several waves rippling along the arc, travelling
+    // radius of a given base line at angle a — a sine wave rides the circular path
+    const wr = (a, base) => base + AMP * Math.sin(a * K - time * SPEED);
+
+    const trace = (base) => {
+      let first = true;
+      for (let a = a0; a <= a1 + 1e-6; a += STEP) {
+        const r = wr(a, base), x = cx + Math.cos(a) * r, y = cy + Math.sin(a) * r;
+        first ? (ctx.moveTo(x, y), first = false) : ctx.lineTo(x, y);
+      }
+    };
+
+    // orange band (wavy quarter-annulus) at 60% opacity
+    ctx.beginPath();
+    trace(rOut);
+    for (let a = a1; a >= a0 - 1e-6; a -= STEP) {
+      const r = wr(a, rIn); ctx.lineTo(cx + Math.cos(a) * r, cy + Math.sin(a) * r);
+    }
+    ctx.closePath();
+    ctx.globalAlpha = 0.6; ctx.fillStyle = accent; ctx.fill(); ctx.globalAlpha = 1;
+
+    // parallel lines inside the band (dark)
+    ctx.strokeStyle = 'rgba(10,10,10,0.4)'; ctx.lineWidth = 1.25;
+    const inN = 5;
+    for (let i = 1; i <= inN; i++) { ctx.beginPath(); trace(rIn + (bandW * i) / (inN + 1)); ctx.stroke(); }
+
+    // parallel arcs outside the band — gray, fading, both sides
+    const gap = D * 0.05, out = 6;
+    ctx.lineWidth = 1.5;
+    for (let i = 1; i <= out; i++) {
+      ctx.strokeStyle = `rgba(120,120,120,${(0.5 * (1 - i / (out + 1))).toFixed(3)})`;
+      ctx.beginPath(); trace(rOut + i * gap); ctx.stroke();
+      if (rIn - i * gap > 6) { ctx.beginPath(); trace(rIn - i * gap); ctx.stroke(); }
+    }
+  };
+
+  if (prefersReducedMotion) { draw(0); return; }
+  const loop = (t) => { draw(t); requestAnimationFrame(loop); };
+  requestAnimationFrame(loop);
 }
 
 // --- Init ---
 function init() {
+  initSmoothScroll();
   initPhaseReveal();
-  initPulseBackground();
   initRingsFollow();
+  initHeroRingsWave();
   initWwdAnim();
   initWwdMesh();
   initWwdIcons();
@@ -555,6 +882,9 @@ function init() {
   initWhatWeDoIntro();
   initMethodReveal();
   initMethodText();
+  initPhaseArc();
+  initClosingRings();
+  initHeroScroll();
 }
 
 document.addEventListener('DOMContentLoaded', init);

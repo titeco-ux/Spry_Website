@@ -135,7 +135,7 @@ body {
 /* main is NOT a stacking context, so sections can be layered around the
    fixed mainline individually. Each section sits above the rings (z0). */
 main > section { position: relative; z-index: 1; }
-.site-footer { position: relative; z-index: 1; }
+.site-footer { position: relative; z-index: 61; }  /* above the site centre line (z-index 60) */
 
 a { color: inherit; text-decoration: none; }
 ul, ol { list-style: none; }
@@ -266,7 +266,9 @@ h3 {
 .hero {
   margin: 0;
   padding: 0;
-  position: relative;
+  position: sticky;      /* pinned while section 2 scrolls up and stacks over it */
+  top: 0;
+  z-index: 1;            /* below .trust (z-index 70), so section 2 covers it */
   background: transparent;
   color: var(--color-invert-fg);
   height: 100dvh;
@@ -274,6 +276,7 @@ h3 {
   flex-direction: column;
   text-align: left;
 }
+.hero-content, .hero-nav { will-change: transform; }
 /* div 1 — heading + subheading, left-justified */
 .hero-content {
   flex: 1;
@@ -813,6 +816,24 @@ h3 {
 #what-we-do .outcome:hover .outcome-body p { color: var(--color-paper); }
 #what-we-do .outcome:hover .wwd-poly { color: var(--color-paper); }
 
+/* same hover-pop for the methodology split cards ("We ship…" / "No side branches…") */
+.method-grid-bottom .method-side-right .method-card {
+  position: relative;
+  transition: background 0.18s ease, box-shadow 0.18s ease;
+}
+.method-grid-bottom .method-side-right .method-card.pop {
+  transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+}
+.method-grid-bottom .method-side-right .method-card:hover {
+  background: var(--color-ink);
+  transform: translate(6px, -6px) !important;
+  box-shadow: -6px 6px 0 rgba(10, 10, 10, 0.22);
+  z-index: 2;
+}
+.method-grid-bottom .method-side-right .method-card:hover .wwd-panel-body,
+.method-grid-bottom .method-side-right .method-card:hover p { color: var(--color-paper); }
+.method-grid-bottom .method-side-right .method-card:hover .wwd-poly { color: var(--color-paper); }
+
 /* =========================================================
    10. SECTION 4 · WHY MAINLINE
    ========================================================= */
@@ -860,6 +881,7 @@ h3 {
   height: 100%;
   display: block;
   z-index: 1; /* above the dotted mesh (::before) */
+  background: var(--color-paper); /* stone backdrop behind the waves */
 }
 
 /* clip-path reveal (enerblock-style): the panel opens toward the bottom-right
@@ -922,6 +944,13 @@ h3 {
   font-weight: 300;
   color: var(--color-ink);
 }
+/* icon + text row for the split cards */
+.method-card .method-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+}
+.method-item .wwd-poly { flex: 0 0 auto; }
 .method-card-title {
   font-family: var(--font-hero);
   font-weight: 500;                /* match the h3 style */
@@ -986,8 +1015,10 @@ h3 {
   grid-template-columns: 1fr;   /* mobile: single column */
   gap: 0;
 }
-.phases-main {}                 /* cards stack full-bleed, no padding */
-.phases-void { background: var(--color-ink); display: none; position: relative; }  /* filled right column */
+.phases-main { display: flex; flex-direction: column; }  /* lets the head fill full height */
+.phases-void { background: var(--color-paper); display: none; position: relative; }  /* stone right column */
+/* quarter-circle arc animation fills the panel */
+.phase-arc { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 /* sticky morphing polyhedron: stays pinned while the left phase list scrolls past */
 .phases-anim { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 
@@ -1063,7 +1094,7 @@ h3 {
   .section-title { font-size: var(--text-4xl); }
   .closing-title { font-size: var(--text-5xl); }
 
-  .phases-grid { grid-template-columns: 1fr 1fr; }  /* div 1 | div 2 — 50/50 */
+  .phases-grid { grid-template-columns: 1fr 1fr; min-height: 100vh; }  /* div 1 | div 2 — 50/50, full height */
   .phases-void {
     display: block;
     position: sticky;      /* pinned while the left phase list scrolls */
@@ -1097,3 +1128,73 @@ h3 {
   .mr-panel, .mr-axis, .mr-corner { transition: none; }   /* reveal shown open instantly */
   html { scroll-behavior: auto; }
 }
+
+/* =========================================================
+   PORTED FROM main — closing "Your turn" + footer
+   ========================================================= */
+/* closing CTA — 50/50 paper layout (overrides the old orange closing) */
+.closing {
+  position: relative;
+  z-index: 1;
+  padding: 0;
+  background: var(--color-paper);
+  color: var(--color-ink);            /* override old paper-on-orange text color */
+  border-bottom: var(--border-thick);
+}
+.closing-left {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+.closing-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: var(--space-16) var(--space-8);
+}
+.closing-link { display: flex; }
+.closing-link .method-cta-bar { flex: 1; height: 104px; }
+.closing-link--primary .method-cta-bar { background: var(--color-accent); color: var(--color-paper); }
+.closing-link--primary .method-cta-bar:hover { background: var(--color-ink); }
+.closing-right {
+  position: relative;
+  overflow: hidden;
+  background: #000;
+}
+.closing-rings-svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+/* orange full-bleed footer, above the centre line */
+.site-footer {
+  position: relative;
+  z-index: 61;
+  background: var(--color-accent);
+  color: var(--color-ink);
+  padding: var(--space-16) 0 var(--space-8);
+}
+.site-footer .container { max-width: none; padding-left: 0; padding-right: 0; }
+.footer-top { display: flex; justify-content: space-between; gap: var(--space-16); flex-wrap: wrap; }
+.footer-brand { display: flex; flex-direction: column; gap: var(--space-4); padding: 0 24px; }
+.footer-logo { width: 200px; max-width: 100%; height: auto; display: block; }
+.footer-copy { font-size: var(--text-sm); color: var(--color-ink); }
+.footer-links { display: flex; gap: var(--space-16); flex: 1; justify-content: flex-end; flex-wrap: wrap; padding: 0 24px; }
+.footer-col-title { font-family: var(--font-mono); font-weight: 700; font-size: var(--text-sm); text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.55; margin-bottom: var(--space-4); }
+.footer-col ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-3); }
+.footer-col a { color: var(--color-ink); font-size: var(--text-base); text-decoration: none; }
+.footer-col a:hover { text-decoration: underline; }
+.footer-bottom { display: flex; justify-content: space-between; align-items: center; gap: var(--space-6); flex-wrap: wrap; margin-top: var(--space-16); padding: var(--space-6) 24px 0; border-top: 1px solid rgba(10, 10, 10, 0.25); }
+.footer-made { font-size: var(--text-sm); }
+.footer-social { display: flex; align-items: center; gap: var(--space-6); }
+.footer-social a { color: var(--color-ink); font-family: var(--font-mono); font-size: var(--text-sm); text-transform: uppercase; letter-spacing: 0.04em; text-decoration: none; }
+.footer-social a:hover { text-decoration: underline; }
+.footer-arrow { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border: 1px solid var(--color-ink); border-radius: 50%; font-size: var(--text-base); text-decoration: none !important; transition: background 0.15s ease, color 0.15s ease; }
+.footer-arrow:hover { background: var(--color-ink); color: var(--color-accent); }
+
+/* Lenis smooth-scroll (see initSmoothScroll) */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-stopped { overflow: hidden; }
