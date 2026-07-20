@@ -135,7 +135,7 @@ body {
 /* main is NOT a stacking context, so sections can be layered around the
    fixed mainline individually. Each section sits above the rings (z0). */
 main > section { position: relative; z-index: 1; }
-.site-footer { position: relative; z-index: 1; }
+.site-footer { position: relative; z-index: 61; }  /* above the site centre line (z-index 60) */
 
 a { color: inherit; text-decoration: none; }
 ul, ol { list-style: none; }
@@ -977,24 +977,83 @@ h3 {
    13. FOOTER
    ========================================================= */
 .site-footer {
-  background: var(--color-ink);
-  color: var(--color-paper);
-  padding: var(--space-12) 0;
+  background: var(--color-accent);   /* orange footer */
+  color: var(--color-ink);
+  padding: var(--space-16) 0 var(--space-8);
 }
-.footer-inner {
+/* footer runs full-bleed — no side padding / max-width */
+.site-footer .container { max-width: none; padding-left: 0; padding-right: 0; }
+/* TOP: brand (left) | link columns (right, majority) */
+.footer-top {
   display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-16);
+  flex-wrap: wrap;
 }
-.footer-line {
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: var(--text-xl);
+.footer-brand { display: flex; flex-direction: column; gap: var(--space-4); padding: 0 24px; }
+.footer-logo { width: 200px; max-width: 100%; height: auto; display: block; }
+.footer-copy { font-size: var(--text-sm); color: var(--color-ink); }
+
+.footer-links {
+  display: flex;
+  gap: var(--space-16);
+  flex: 1;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  padding: 0 24px;
+}
+.footer-col-title {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: var(--text-sm);
   text-transform: uppercase;
-  color: var(--color-accent-2);
+  letter-spacing: 0.06em;
+  opacity: 0.55;
+  margin-bottom: var(--space-4);
 }
-.footer-meta { font-size: var(--text-sm); opacity: 0.7; }
+.footer-col ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-3); }
+.footer-col a {
+  color: var(--color-ink);
+  font-size: var(--text-base);
+  text-decoration: none;
+}
+.footer-col a:hover { text-decoration: underline; }
+
+/* BOTTOM: made-by (left) | socials + back-to-top (right) */
+.footer-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-6);
+  flex-wrap: wrap;
+  margin-top: var(--space-16);
+  padding: var(--space-6) 24px 0;
+  border-top: 1px solid rgba(10, 10, 10, 0.25);
+}
+.footer-made { font-size: var(--text-sm); }
+.footer-social { display: flex; align-items: center; gap: var(--space-6); }
+.footer-social a {
+  color: var(--color-ink);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+}
+.footer-social a:hover { text-decoration: underline; }
+.footer-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--color-ink);
+  border-radius: 50%;
+  font-size: var(--text-base);
+  text-decoration: none !important;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.footer-arrow:hover { background: var(--color-ink); color: var(--color-accent); }
 
 /* =========================================================
    14. MEDIA QUERIES (mobile-first scale up)
