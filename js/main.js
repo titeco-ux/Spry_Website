@@ -828,7 +828,8 @@ function initPhaseArc() {
     const R = D * 0.52;               // constant radius — no pulsation
     const bandW = D * 0.11;
     const rIn = R - bandW / 2, rOut = R + bandW / 2;
-    const AMP = D * 0.014, K = 11, SPEED = 2.0;   // several waves rippling along the arc, travelling
+    const K = 11, SPEED = 2.0;
+    const AMP = D * 0.018 * (0.75 + 0.25 * Math.sin(time * 0.8));   // amplitude breathes like the section-3 wave
     // radius of a given base line at angle a — a sine wave rides the circular path
     const wr = (a, base) => base + AMP * Math.sin(a * K - time * SPEED);
 
