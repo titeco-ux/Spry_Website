@@ -280,20 +280,40 @@ function initMethodWave() {
   resize();
   window.addEventListener('resize', resize);
 
+  // Hover: the waves sharpen (sine → triangle), get denser, and travel faster.
+  let hovered = false, hoverAmt = 0, flowT = 0, lastT = 0;
+  const enter = () => { hovered = true; };
+  const leave = () => { hovered = false; };
+  mount.addEventListener('mouseenter', enter);
+  mount.addEventListener('mouseleave', leave);
+  canvas.addEventListener('mouseenter', enter);
+  canvas.addEventListener('mouseleave', leave);
+
   // Reduced motion: draw one static frame and stop.
   const drawFrame = (t) => {
     if (!w || !h) { resize(); return; }
+    // advance timers — hoverAmt eases 0↔1; flowT accumulates so speed changes never jump
+    const dt = lastT ? Math.min(t - lastT, 50) : 16;
+    lastT = t;
+    const dtSec = dt * 0.001;
+    hoverAmt += ((hovered ? 1 : 0) - hoverAmt) * Math.min(1, dtSec * 6);
+    flowT += dtSec * 2.2 * (1 + hoverAmt * 2.0);   // faster travel on hover
+
     ctx.clearRect(0, 0, w, h);
     const midY = h / 2;
     const time = t * 0.001;
-    const k = (Math.PI * 2) / (w * 0.55);   // wave length (same for all lines)
+    const k = (Math.PI * 2) / (w * 0.55);          // base wave length
+    const kk = k * (1 + hoverAmt * 0.5);           // shorter (denser) on hover
+    const sharp = hoverAmt;                         // 0 = smooth sine, 1 = sharp triangle
 
     // vertical displacement (the oscillating part) of a line's wave at x
     const waveDisp = (line, x) => {
       const breathe = 0.75 + 0.25 * Math.sin(time * 0.8 + line.offset * 6);
-      const amp = h * line.amp * breathe;
-      const phase = time * line.speed * 2.2; // travels left -> right
-      return Math.sin(x * k - phase) * amp;
+      const amp = h * line.amp * breathe * (1 + hoverAmt * 0.35);
+      const theta = x * kk - flowT * line.speed;   // travels left -> right
+      const s = Math.sin(theta);
+      const tri = (2 / Math.PI) * Math.asin(Math.sin(theta));  // triangle → sharp peaks
+      return (s * (1 - sharp) + tri * sharp) * amp;
     };
     // y of a given line's wave at horizontal position x
     const waveY = (line, x) => midY + h * line.offset + waveDisp(line, x);
