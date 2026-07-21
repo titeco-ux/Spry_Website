@@ -1142,28 +1142,6 @@ h3 {
 
   .outcomes-grid { grid-template-columns: 1fr 1fr; }  /* header | stats — 50/50 */
   .outcomes-title { font-size: var(--text-5xl); }     /* hero-scale on desktop */
-
-  /* section 6 — the three outcome cards (6.4/6.5/6.6) pin and stack as you scroll;
-     the header stays pinned on the left while they pile up on the right */
-  #outcomes .outcomes-head {
-    position: sticky;
-    top: 0;
-    height: 100vh;
-    align-self: start;
-  }
-  #outcomes .outcomes-list { display: block; }   /* natural card heights, not flex-equal */
-  #outcomes .outcome {
-    position: sticky;
-    min-height: 26vh;                 /* each card's own height */
-    margin-bottom: 46vh;              /* scroll travel before the next locks in */
-    background: var(--color-paper);
-    border-top: var(--border-thick);  /* the line each card locks against */
-  }
-  #outcomes .outcome:last-child { margin-bottom: 0; }
-  /* cumulative tops = each card locks flush at the bottom line of the previous */
-  #outcomes .outcome:nth-child(1) { top: 12vh; }
-  #outcomes .outcome:nth-child(2) { top: 38vh; }   /* 12 + 26 */
-  #outcomes .outcome:nth-child(3) { top: 64vh; }   /* 12 + 52 */
 }
 
 /* What-we-do stacks on narrow screens; sticky icon becomes static */
