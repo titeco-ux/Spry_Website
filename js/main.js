@@ -392,19 +392,32 @@ function initWhatWeDoIntro() {
   const para = section.querySelector('.outcomes-sub');   // the paragraph below the title
   const items = Array.from(section.querySelectorAll('.outcome'));
 
-  // split the paragraph into per-letter spans (skip entirely for reduced motion)
+  // split into words (kept intact) then letters, so lines never break mid-word
   const letters = [];
   if (para && !prefersReducedMotion) {
     const text = para.textContent;
     para.textContent = '';
-    for (const ch of text) {
-      const s = document.createElement('span');
-      s.textContent = ch;
-      s.style.display = 'inline-block';
-      s.style.whiteSpace = 'pre';   // preserve spaces + allow word wrapping
-      s.style.opacity = '0';
-      para.appendChild(s);
-      letters.push(s);
+    for (const token of text.split(/(\s+)/)) {
+      if (token === '') continue;
+      if (/^\s+$/.test(token)) {
+        const sp = document.createElement('span');
+        sp.textContent = token;
+        sp.style.whiteSpace = 'normal';
+        para.appendChild(sp);
+        continue;
+      }
+      const word = document.createElement('span');
+      word.style.display = 'inline-block';
+      word.style.whiteSpace = 'nowrap';
+      for (const ch of token) {
+        const s = document.createElement('span');
+        s.textContent = ch;
+        s.style.display = 'inline-block';
+        s.style.opacity = '0';
+        word.appendChild(s);
+        letters.push(s);
+      }
+      para.appendChild(word);
     }
   }
 
@@ -448,6 +461,34 @@ function initWhatWeDoIntro() {
     items.forEach((it) => itemObs.observe(it));
   } else {
     revealLetters();
+    items.forEach((it) => { it.style.opacity = '1'; it.classList.add('pop'); });
+  }
+}
+
+// Section 6 (Outcomes) — the 01/02/03 items slide in + gain hover-pop,
+// exactly like section 3's right-hand items.
+function initOutcomesIntro() {
+  const section = document.getElementById('outcomes');
+  if (!section) return;
+  const items = Array.from(section.querySelectorAll('.outcome'));
+  if (!items.length) return;
+
+  if (prefersReducedMotion) {
+    items.forEach((it) => { it.style.opacity = '1'; it.classList.add('pop'); });
+    return;
+  }
+
+  items.forEach((it) => { it.style.opacity = '0'; });
+  const revealItem = (it) => {
+    animate(it, { opacity: [0, 1], translateX: [-60, 0], duration: 950, ease: 'out(3)' });
+    setTimeout(() => it.classList.add('pop'), 1000);  // enable hover-pop after entrance
+  };
+  if ('IntersectionObserver' in window) {
+    const itemObs = new IntersectionObserver((entries) => {
+      entries.forEach((e) => { if (e.isIntersecting) { revealItem(e.target); itemObs.unobserve(e.target); } });
+    }, { threshold: 0.6 });
+    items.forEach((it) => itemObs.observe(it));
+  } else {
     items.forEach((it) => { it.style.opacity = '1'; it.classList.add('pop'); });
   }
 }
@@ -524,17 +565,31 @@ function initMethodText() {
   ].filter(Boolean);
 
   paras.forEach((para) => {
+    // Split into WORDS (kept intact) then letters, so lines never break mid-word.
     const text = para.textContent;
     para.textContent = '';
     const letters = [];
-    for (const ch of text) {
-      const s = document.createElement('span');
-      s.textContent = ch;
-      s.style.display = 'inline-block';
-      s.style.whiteSpace = 'pre';
-      s.style.opacity = '0';
-      para.appendChild(s);
-      letters.push(s);
+    for (const token of text.split(/(\s+)/)) {
+      if (token === '') continue;
+      if (/^\s+$/.test(token)) {
+        const sp = document.createElement('span');
+        sp.textContent = token;
+        sp.style.whiteSpace = 'normal';
+        para.appendChild(sp);
+        continue;
+      }
+      const word = document.createElement('span');
+      word.style.display = 'inline-block';
+      word.style.whiteSpace = 'nowrap';
+      for (const ch of token) {
+        const s = document.createElement('span');
+        s.textContent = ch;
+        s.style.display = 'inline-block';
+        s.style.opacity = '0';
+        word.appendChild(s);
+        letters.push(s);
+      }
+      para.appendChild(word);
     }
     const run = () => animate(letters, { opacity: [0, 1], duration: 320, delay: stagger(12), ease: 'out(2)' });
     if (io) {
@@ -562,6 +617,109 @@ function initMethodText() {
   } else {
     cards.forEach((c) => { c.style.opacity = '1'; c.classList.add('pop'); });
   }
+}
+
+// Section 5 (The Phases) — same scroll-driven clip-path reveal as section 4's wave.
+function initPhaseArcReveal() {
+  const reveal = document.getElementById('phase-reveal');
+  if (!reveal) return;
+  const panel = reveal.querySelector('.mr-panel');
+  const axisY = reveal.querySelector('.mr-axis-y');
+  const axisX = reveal.querySelector('.mr-axis-x');
+  const axisTop = reveal.querySelector('.mr-axis-top');
+  const axisLeft = reveal.querySelector('.mr-axis-left');
+  const corner = reveal.querySelector('.mr-corner');
+
+  // scroll position drives everything directly — no CSS transitions
+  [panel, axisY, axisX, axisTop, axisLeft, corner].forEach((el) => { if (el) el.style.transition = 'none'; });
+
+  const rootFont = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const clamp = (v) => Math.min(1, Math.max(0, v));
+
+  const apply = () => {
+    const W = reveal.clientWidth, H = reveal.clientHeight;
+    if (!W || !H) return;
+    const pad = 1.25 * rootFont;              // top + left inset (20px)
+    const openR = 60;                         // right inset when open → 60px
+    const openB = 60;                         // bottom inset when open → 60px
+    const closedR = W - pad;                  // calc(100% - 1.25rem)
+    const closedB = H - pad;
+
+    let p;
+    if (prefersReducedMotion) {
+      p = 1;
+    } else {
+      const vh = window.innerHeight;
+      const top = reveal.getBoundingClientRect().top;
+      const start = vh * 1.0, end = vh * 0.25; // wider range → slower, clearer diagonal
+      p = clamp((start - top) / (start - end));
+    }
+
+    const r = lerp(closedR, openR, p);
+    const b = lerp(closedB, openB, p);
+    if (panel)  panel.style.clipPath = `inset(${pad}px ${r}px ${b}px ${pad}px)`;
+    if (axisY)  { axisY.style.right = `${r}px`;  axisY.style.opacity = String(0.5 * p); }
+    if (axisX)  { axisX.style.bottom = `${b}px`; axisX.style.opacity = String(0.5 * p); }
+    if (axisTop)  axisTop.style.opacity = String(0.5 * p);   // fixed top edge, fades in
+    if (axisLeft) axisLeft.style.opacity = String(0.5 * p);  // fixed left edge, fades in
+    if (corner) { corner.style.right = `${r}px`; corner.style.bottom = `${b}px`; corner.style.opacity = String(p); }
+  };
+
+  if (prefersReducedMotion) { apply(); return; }
+
+  let ticking = false;
+  const onScroll = () => {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => { apply(); ticking = false; });
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', apply);
+  apply();
+}
+
+// Section 5 paragraph — same letter-by-letter reveal as section 4's paragraph.
+function initPhaseText() {
+  const section = document.getElementById('phases');
+  if (!section || prefersReducedMotion) return;
+  const io = 'IntersectionObserver' in window;
+  const para = section.querySelector('.phases-main .outcomes-sub');
+  if (!para) return;
+
+  // split into words (kept intact) then letters, so lines never break mid-word
+  const text = para.textContent;
+  para.textContent = '';
+  const letters = [];
+  for (const token of text.split(/(\s+)/)) {
+    if (token === '') continue;
+    if (/^\s+$/.test(token)) {
+      const sp = document.createElement('span');
+      sp.textContent = token;
+      sp.style.whiteSpace = 'normal';
+      para.appendChild(sp);
+      continue;
+    }
+    const word = document.createElement('span');
+    word.style.display = 'inline-block';
+    word.style.whiteSpace = 'nowrap';
+    for (const ch of token) {
+      const s = document.createElement('span');
+      s.textContent = ch;
+      s.style.display = 'inline-block';
+      s.style.opacity = '0';
+      word.appendChild(s);
+      letters.push(s);
+    }
+    para.appendChild(word);
+  }
+  const run = () => animate(letters, { opacity: [0, 1], duration: 320, delay: stagger(12), ease: 'out(2)' });
+  if (io) {
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach((e) => { if (e.isIntersecting) { run(); obs.disconnect(); } });
+    }, { threshold: 0.4 });
+    obs.observe(para);
+  } else { run(); }
 }
 
 // interactive (hover = little peek, click = full bar pop). A surrounding ring of
@@ -684,6 +842,209 @@ function initPhaseGrid() {
 // fill), centered in the div. Each ring drifts toward the cursor — inner rings
 // farther than outer ones, never crossing its neighbour (hero-ring behaviour) —
 // and the radii ripple in a slow traveling wave.
+// Section 7 — a FLAT isometric plane with the traveling wave inscribed ON it.
+// The plane never deforms (no height); the wave ribs undulate side-to-side
+// within the plane surface, the orange band riding between the two middle ribs.
+function initClosingWave() {
+  const canvas = document.getElementById('closing-wave');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const mount = canvas.parentElement;
+
+  const css = getComputedStyle(document.documentElement);
+  const accent = (css.getPropertyValue('--color-accent') || '#ff3d00').trim();
+  const paper = (css.getPropertyValue('--color-paper') || '#D2CBBF').trim();  // light ribs on the black panel
+
+  // ribs across the plane (base = resting cross-position; vAmp = in-plane sway)
+  const LINES = [
+    { base: -1.00, vAmp: 0.10, width: 0.75, color: paper,  alpha: 0.45 },
+    { base: -0.53, vAmp: 0.13, width: 1,    color: paper,  alpha: 0.70 },
+    { base:  0.00, vAmp: 0.16, width: 0,    color: accent, alpha: 0.60 },   // main line (band edge)
+    { base:  0.53, vAmp: 0.13, width: 1,    color: paper,  alpha: 0.70 },
+    { base:  1.00, vAmp: 0.10, width: 0.75, color: paper,  alpha: 0.45 },
+  ];
+  LINES[2].bandNext = LINES[3];   // orange band spans main → next rib
+
+  let w = 0, h = 0, dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const resize = () => {
+    w = mount.clientWidth;
+    h = mount.clientHeight;
+    if (!w || !h) return;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  };
+  resize();
+  window.addEventListener('resize', resize);
+
+  const SAMPLES = 64;    // points sampled along each rib
+  const CYCLES = 2.1;    // wave cycles across the plane
+  const cosT = Math.cos(Math.PI / 6), sinT = Math.sin(Math.PI / 6);  // 30° isometric
+
+  const drawFrame = (t) => {
+    if (!w || !h) { resize(); return; }
+    ctx.clearRect(0, 0, w, h);
+    const time = t * 0.001;
+    const cx = w / 2, cy = h / 2;
+    const HU = w * 0.82;                 // half-length of the travel axis (zoomed in)
+    const HV = w * 0.46;                 // half-width of the plane (zoomed in)
+    const breathe = 0.7 + 0.3 * Math.sin(time * 0.8);   // amplitude oscillation
+
+    // FLAT isometric projection of an in-plane point (s along travel, v across). No height.
+    const proj = (s, v) => [
+      cx + s * HU * cosT + v * HV * -cosT,
+      cy + s * HU * sinT + v * HV *  sinT,
+    ];
+    // rib's in-plane cross position at travel s: rests at base, sways by the wave
+    const vAt = (ln, s) => ln.base + ln.vAmp * breathe * Math.sin(s * Math.PI * CYCLES - time * 1.6);
+    const ribPoints = (ln) => {
+      const pts = [];
+      for (let n = 0; n <= SAMPLES; n++) { const s = -1 + (2 * n) / SAMPLES; pts.push(proj(s, vAt(ln, s))); }
+      return pts;
+    };
+
+    // orange band ribbon between the main rib and its neighbour (flat on the plane)
+    for (const ln of LINES) {
+      if (!ln.bandNext) continue;
+      const a = ribPoints(ln), b = ribPoints(ln.bandNext);
+      ctx.beginPath();
+      a.forEach((p, i) => (i === 0 ? ctx.moveTo(p[0], p[1]) : ctx.lineTo(p[0], p[1])));
+      for (let i = b.length - 1; i >= 0; i--) ctx.lineTo(b[i][0], b[i][1]);
+      ctx.closePath();
+      ctx.globalAlpha = 0.6; ctx.fillStyle = accent; ctx.fill();
+      // streamlines flowing inside the band
+      const STREAMS = 4;
+      ctx.globalAlpha = 1; ctx.strokeStyle = 'rgba(10,10,10,0.4)'; ctx.lineWidth = 1; ctx.lineCap = 'round';
+      for (let k = 1; k <= STREAMS; k++) {
+        const f = k / (STREAMS + 1);
+        ctx.beginPath();
+        for (let n = 0; n <= SAMPLES; n++) {
+          const x = a[n][0] * (1 - f) + b[n][0] * f, y = a[n][1] * (1 - f) + b[n][1] * f;
+          n === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+      }
+    }
+
+    // the wave ribs themselves (flat on the plane)
+    for (const ln of LINES) {
+      if (ln.width <= 0) continue;
+      const pts = ribPoints(ln);
+      ctx.beginPath();
+      pts.forEach((p, i) => (i === 0 ? ctx.moveTo(p[0], p[1]) : ctx.lineTo(p[0], p[1])));
+      ctx.globalAlpha = ln.alpha; ctx.strokeStyle = ln.color; ctx.lineWidth = ln.width; ctx.lineCap = 'round';
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+  };
+
+  if (prefersReducedMotion) { drawFrame(0); return; }
+  let raf;
+  const loop = (t) => { drawFrame(t); raf = requestAnimationFrame(loop); };
+  raf = requestAnimationFrame(loop);
+}
+
+// Section 7 — same scroll-driven clip-path reveal as section 4's wave.
+function initClosingReveal() {
+  const reveal = document.getElementById('closing-reveal');
+  if (!reveal) return;
+  const panel = reveal.querySelector('.mr-panel');
+  const axisY = reveal.querySelector('.mr-axis-y');
+  const axisX = reveal.querySelector('.mr-axis-x');
+  const axisTop = reveal.querySelector('.mr-axis-top');
+  const axisLeft = reveal.querySelector('.mr-axis-left');
+  const corner = reveal.querySelector('.mr-corner');
+
+  [panel, axisY, axisX, axisTop, axisLeft, corner].forEach((el) => { if (el) el.style.transition = 'none'; });
+
+  const rootFont = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const clamp = (v) => Math.min(1, Math.max(0, v));
+
+  const apply = () => {
+    const W = reveal.clientWidth, H = reveal.clientHeight;
+    if (!W || !H) return;
+    const pad = 1.25 * rootFont;
+    const openR = 60, openB = 60;
+    const closedR = W - pad;
+    const closedB = H - pad;
+
+    let p;
+    if (prefersReducedMotion) {
+      p = 1;
+    } else {
+      const vh = window.innerHeight;
+      const top = reveal.getBoundingClientRect().top;
+      const start = vh * 1.0, end = vh * 0.25;
+      p = clamp((start - top) / (start - end));
+    }
+
+    const r = lerp(closedR, openR, p);
+    const b = lerp(closedB, openB, p);
+    if (panel)  panel.style.clipPath = `inset(${pad}px ${r}px ${b}px ${pad}px)`;
+    if (axisY)  { axisY.style.right = `${r}px`;  axisY.style.opacity = String(0.5 * p); }
+    if (axisX)  { axisX.style.bottom = `${b}px`; axisX.style.opacity = String(0.5 * p); }
+    if (axisTop)  axisTop.style.opacity = String(0.5 * p);
+    if (axisLeft) axisLeft.style.opacity = String(0.5 * p);
+    if (corner) { corner.style.right = `${r}px`; corner.style.bottom = `${b}px`; corner.style.opacity = String(p); }
+  };
+
+  if (prefersReducedMotion) { apply(); return; }
+
+  let ticking = false;
+  const onScroll = () => {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => { apply(); ticking = false; });
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', apply);
+  apply();
+}
+
+// Section 7 paragraph — same letter-by-letter reveal as the other sections.
+function initClosingText() {
+  const section = document.getElementById('contact');
+  if (!section || prefersReducedMotion) return;
+  const io = 'IntersectionObserver' in window;
+  const para = section.querySelector('.closing-content .outcomes-sub');
+  if (!para) return;
+
+  // Split into WORDS (kept intact) then letters, so lines never break mid-word.
+  const text = para.textContent;
+  para.textContent = '';
+  const letters = [];
+  for (const token of text.split(/(\s+)/)) {
+    if (token === '') continue;
+    if (/^\s+$/.test(token)) {
+      const sp = document.createElement('span');
+      sp.textContent = token;
+      sp.style.whiteSpace = 'normal';   // normal, breakable space between words
+      para.appendChild(sp);
+      continue;
+    }
+    const word = document.createElement('span');
+    word.style.display = 'inline-block';
+    word.style.whiteSpace = 'nowrap';     // keep the word's letters on one line
+    for (const ch of token) {
+      const s = document.createElement('span');
+      s.textContent = ch;
+      s.style.display = 'inline-block';
+      s.style.opacity = '0';
+      word.appendChild(s);
+      letters.push(s);
+    }
+    para.appendChild(word);
+  }
+  const run = () => animate(letters, { opacity: [0, 1], duration: 320, delay: stagger(12), ease: 'out(2)' });
+  if (io) {
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach((e) => { if (e.isIntersecting) { run(); obs.disconnect(); } });
+    }, { threshold: 0.4 });
+    obs.observe(para);
+  } else { run(); }
+}
+
 function initClosingRings() {
   const svg = document.querySelector('.closing-right .closing-rings-svg');
   if (!svg) return;
@@ -884,7 +1245,12 @@ function init() {
   initMethodReveal();
   initMethodText();
   initPhaseArc();
+  initPhaseArcReveal();
+  initPhaseText();
   initClosingRings();
+  initClosingWave();
+  initClosingReveal();
+  initClosingText();
   initHeroScroll();
 }
 

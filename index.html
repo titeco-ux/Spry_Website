@@ -233,8 +233,18 @@
         </div>
 
         <!-- div 2 — RIGHT: isometric grid; central 3×3 interactive over a wavy ambient field -->
+        <!-- wrapped in the same clip-path reveal as section 4's wave -->
         <div class="phases-void">
-          <canvas class="phase-arc" id="phase-arc"></canvas>
+          <div class="method-reveal" id="phase-reveal">
+            <div class="mr-panel">
+              <canvas class="phase-arc" id="phase-arc"></canvas>
+            </div>
+            <span class="mr-axis mr-axis-top"></span>
+            <span class="mr-axis mr-axis-left"></span>
+            <span class="mr-axis mr-axis-y"></span>
+            <span class="mr-axis mr-axis-x"></span>
+            <span class="mr-corner"></span>
+          </div>
         </div>
 
       </div>
@@ -298,9 +308,19 @@
           </div>
         </div>
 
-        <!-- RIGHT: 20 concentric circumferences drifting toward the cursor + rippling -->
+        <!-- RIGHT (shown on the LEFT on desktop): section-4-style clip-path reveal
+             wrapping a VERTICAL traveling wave -->
         <div class="closing-right" aria-hidden="true">
-          <svg class="closing-rings-svg" viewBox="-333 -333 666 666" preserveAspectRatio="xMidYMid meet"></svg>
+          <div class="method-reveal" id="closing-reveal">
+            <div class="mr-panel">
+              <canvas class="method-wave" id="closing-wave"></canvas>
+            </div>
+            <span class="mr-axis mr-axis-top"></span>
+            <span class="mr-axis mr-axis-left"></span>
+            <span class="mr-axis mr-axis-y"></span>
+            <span class="mr-axis mr-axis-x"></span>
+            <span class="mr-corner"></span>
+          </div>
         </div>
 
       </div>
