@@ -1,0 +1,97 @@
+:root {
+  --primary: #F63822;
+  --opacity: 0.4;
+  --size: 70px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: #000000;
+  color: #fff;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+/* Tall scroll track — its scroll distance drives the animation. */
+.track {
+  position: relative;
+  height: 700vh;
+}
+
+/* Pinned viewport that holds the circles while we scroll through the track. */
+.sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.stage {
+  position: absolute;
+  inset: 0;
+}
+
+/* Wrapper sits at (0,0) with a negative margin so a JS translate(x, y)
+   positions the circle's CENTER at (x, y). The scroll timeline drives the
+   wrapper's translate + path scale. */
+.circle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--size);
+  height: var(--size);
+  margin: calc(var(--size) / -2) 0 0 calc(var(--size) / -2);
+  will-change: transform;
+  pointer-events: none; /* not interactive during the concentric / travel phases */
+}
+
+/* Interaction is enabled ONLY once the grid has formed. On hover, each
+   circle opens its OWN body into a ring-arc — driven in JS (see script.js),
+   not a mask overlay. */
+.stage.is-grid .circle {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+/* The visible disc. Its own looping pulse (scale + opacity) runs
+   independently of the path, so both animations coexist. */
+.dot {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: var(--primary);
+  opacity: var(--opacity);
+  will-change: transform, opacity;
+}
+
+
+/* Headline that fades in on the right as the grid settles. */
+.headline {
+  position: absolute;
+  right: 9%;
+  top: 42%;
+  text-align: right;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.headline h1 {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.headline p {
+  margin-top: 0.5rem;
+  font-size: 1.1rem;
+  color: var(--primary);
+}
