@@ -23,7 +23,7 @@ body {
 /* Tall scroll track — its scroll distance drives the animation. */
 .track {
   position: relative;
-  height: 700vh;
+  height: 1600vh;
 }
 
 /* Pinned viewport that holds the circles while we scroll through the track. */
@@ -74,24 +74,15 @@ body {
 }
 
 
-/* Headline that fades in on the right as the grid settles. */
-.headline {
-  position: absolute;
-  right: 9%;
-  top: 42%;
-  text-align: right;
-  opacity: 0;
-  will-change: transform, opacity;
-}
-
-.headline h1 {
-  font-size: clamp(2rem, 5vw, 3.5rem);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-}
-
-.headline p {
-  margin-top: 0.5rem;
-  font-size: 1.1rem;
+/* Section counter, fixed in the corner, updated per fold in JS. */
+.section-num {
+  position: fixed;
+  top: 2rem;
+  left: 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.25em;
   color: var(--primary);
+  font-variant-numeric: tabular-nums;
+  z-index: 10;
 }
